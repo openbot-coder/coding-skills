@@ -1,7 +1,7 @@
 # coding-skills
-教AI Agent 编写代码的skills
+开发全生命周期管理
 
-教 AI Agent 编写代码的 Skills — 一套面向 AI 编程助手的开发生命周期技能体系。
+一套面向 AI 编程助手的开发生命周期技能体系。
 
 ## 概述
 
