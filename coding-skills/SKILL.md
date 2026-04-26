@@ -1,5 +1,5 @@
 ---
-name: coding-skill
+name: coding-skills
 description: "当涉及任何编码、开发、功能实现、Bug修复、调试、代码审查、测试或分支管理任务时使用。根据开发阶段路由到对应的子技能。"
 ---
 
@@ -13,7 +13,7 @@ description: "当涉及任何编码、开发、功能实现、Bug修复、调试
 
 ## 开发原则
 
-以下四条原则贯穿所有阶段的所有开发工作。不可妥协。
+以下六条原则贯穿所有阶段的所有开发工作。不可妥协。
 
 ### 1. 先思考再编码
 不要假设。不要隐藏困惑。暴露权衡。
@@ -176,6 +176,9 @@ digraph coding_lifecycle {
 - ❌ 不运行验证就声称"完成"
 - ❌ 不经代码审查就合并
 - ❌ "这太简单了不需要设计"
+- ❌ 只写正例测试，忽略反例和边界值（违反铁律一）
+- ❌ 单元测试覆盖率未达 100% 且未标注原因（违反铁律二）
+- ❌ 集成测试只写正例，缺少反例/边界值或未自动化（违反铁律三）
 
 ## 子技能参考
 
@@ -199,6 +202,7 @@ skills/coding-skills/
 │   ├── verification-before-completion.md  ← 阶段6
 │   └── finishing-a-development-branch.md  ← 阶段7
 └── references/                           ← 辅助参考文件
+    ├── python-async-patterns.md           ← Python 异步开发实战模式
     ├── requesting-code-review-code-reviewer.md
     ├── subagent-driven-development-*.md
     ├── systematic-debugging-*.md/.ts/.sh
@@ -212,7 +216,7 @@ skills/coding-skills/
 | subagent-driven-development | 3 | 用子代理执行计划 |
 | executing-plans | 3 | 批量执行计划 |
 | dispatching-parallel-agents | 3 | 执行并行任务 |
-| test-driven-development | 3 | TDD 纪律 |
+| test-driven-development | 3 | TDD 纪律 + 正例/反例/边界值 + 覆盖率 |
 | using-git-worktrees | 3 | 隔离开发 |
 | using-uv | 3 | Python uv 包管理器 |
 | systematic-debugging | 4 | 根因调试 |
@@ -220,3 +224,10 @@ skills/coding-skills/
 | receiving-code-review | 5 | 处理审查反馈 |
 | verification-before-completion | 6 | 声称前需证据 |
 | finishing-a-development-branch | 7 | 合并/关闭分支 |
+
+**参考文件：**
+
+| 文件 | 用途 |
+|------|------|
+| references/python-async-patterns.md | Python 异步开发实战模式（阻塞 I/O、SSE 流式、deque 滑动窗口、持久连接） |
+| references/test-driven-development-testing-anti-patterns.md | 测试反模式 |

@@ -335,7 +335,9 @@ PASS
 - [ ] 所有测试通过
 - [ ] 输出干净（无错误、警告）
 - [ ] 测试使用真实代码（除非不可避免否则不用 mock）
-- [ ] 覆盖了边界情况和错误
+- [ ] **铁律一：每个功能点覆盖正例 + 反例 + 边界值**
+- [ ] **铁律二：单元测试覆盖率 100%，未覆盖行已标注原因**
+- [ ] **铁律三：集成测试覆盖正例 + 反例 + 边界值，全部自动化**
 
 无法勾选所有框？你跳过了 TDD。从头开始。
 
@@ -360,6 +362,154 @@ PASS
 - 测试 mock 行为而非真实行为
 - 向生产类添加仅测试方法
 - 在不理解依赖的情况下 mock
+
+## 测试铁律
+
+以下三条规则不可妥协，适用于所有项目，没有例外。
+
+### 铁律一：三维度覆盖
+
+测试用例必须覆盖正例、反例和边界值，缺一不可。
+
+- **正例**：验证预期行为 — 正常输入 → 正常输出
+- **反例**：验证错误处理 — 无效/非法输入 → 正确的错误响应
+- **边界值**：验证临界行为 — 最小值、零值、空值、刚好等于/超过阈值
+
+只有正例的测试 = 没有测试。只测了"能用"，没测"不能用"和"差点能用"。
+
+### 铁律二：100% 单元测试覆盖率
+
+单元测试代码覆盖率目标：**100%**。
+
+每一行未覆盖的代码必须以行内注释标注无法覆盖的原因：
+
+```python
+# UNCOVERED: 防御性代码 — 此 NotImplementedError 仅在子类未实现时触发，
+# 但所有子类均已实现，此行为路径不可达
+raise NotImplementedError
+```
+
+**可接受的未覆盖原因：**
+- 防御性代码（如抽象基类的 `NotImplementedError`）
+- 框架架构限制（如流式生成器中的异常无法被外层 try/except 捕获）
+- 第三方库内部路径
+- 竞争条件中理论上可能但实践中不可复现的路径
+
+**不可接受的未覆盖原因：**
+- "太难测试"
+- "太简单不需要"
+- "之后补"
+- "这个分支永远不会执行"
+
+如果一行代码真的永远不执行，那它就不应该存在。删掉它。
+
+### 铁律三：集成测试同样三维度 + 自动化
+
+集成测试的测试用例也必须覆盖正例、反例和边界值，且必须落实自动化测试。
+
+- **自动化**：所有集成测试可由 `pytest` 一键运行，无需手动步骤
+- **可重复**：外部依赖（API 调用、数据库）全部通过 mock/临时实例隔离
+- **三维度**：与单元测试相同，正例 + 反例 + 边界值
+
+```
+单元测试：每个函数/类 → 正例 + 反例 + 边界值 → 覆盖率 100%
+集成测试：每条端到端链路 → 正例 + 反例 + 边界值 → 自动化可运行
+```
+
+## 测试三维度：正例、反例、边界值
+
+每个功能点必须覆盖三个维度，缺一不可：
+
+### 正例 — 验证预期行为
+- 正常输入 → 正常输出
+- 典型使用场景 → 功能正确完成
+- 验证"它能做我们说它能做的事"
+
+```python
+def test_rate_limiter_allows_within_limit():
+    """正例：限额内请求允许通过"""
+    limiter = RateLimiter(max_requests=3, window_seconds=60)
+    assert limiter.is_allowed("key1") is True
+```
+
+### 反例 — 验证错误处理
+- 无效输入 → 正确的错误响应
+- 缺少必要参数 → 明确的错误信息
+- 无权限访问 → 401/403 而非 500
+- 验证"它不能做我们说它不能做的事"
+
+```python
+def test_rate_limiter_blocks_over_limit():
+    """反例：超限请求被拒绝"""
+    limiter = RateLimiter(max_requests=2, window_seconds=60)
+    limiter.is_allowed("key1")
+    limiter.is_allowed("key1")
+    assert limiter.is_allowed("key1") is False
+```
+
+### 边界值 — 验证临界行为
+- 最小值、最大值、零值、空值
+- 刚好等于阈值 vs 刚好超过阈值
+- 并发/竞争条件（如果适用）
+
+```python
+def test_rate_limiter_max_requests_zero():
+    """边界值：max_requests=0，所有请求被拒绝"""
+    limiter = RateLimiter(max_requests=0, window_seconds=60)
+    assert limiter.is_allowed("key1") is False
+
+def test_rate_limiter_max_requests_one():
+    """边界值：max_requests=1，首次通过第二次拒绝"""
+    limiter = RateLimiter(max_requests=1, window_seconds=60)
+    assert limiter.is_allowed("key1") is True
+    assert limiter.is_allowed("key1") is False
+```
+
+### 覆盖率要求
+
+> 见 **铁律二**：100% 覆盖率，未覆盖行必须标注原因。
+
+未覆盖代码的标注格式：
+
+```python
+# UNCOVERED: [原因分类] — [具体说明]
+raise NotImplementedError  # 示例
+```
+
+| 原因分类 | 可接受 | 示例 |
+|---------|--------|------|
+| 防御性代码 | ✅ | 抽象基类 `NotImplementedError`，所有子类已实现 |
+| 框架限制 | ✅ | 流式生成器异常无法被外层捕获 |
+| 第三方路径 | ✅ | SDK 内部异常处理分支 |
+| "太难" | ❌ | — |
+| "太简单" | ❌ | — |
+| "之后补" | ❌ | — |
+
+## 异步测试模式
+
+测试异步代码时使用 `pytest-asyncio`：
+
+```python
+import pytest
+
+@pytest.mark.asyncio
+async def test_async_db_write(tmp_path):
+    """正例：异步数据库写入"""
+    log_db = LoggingDB(str(tmp_path / "test.duckdb"))
+    await log_db.log_request(request_id="req-1", status="success")
+    # 验证数据已写入
+```
+
+**注意：**
+- pytest-asyncio 严格模式下，异步测试必须加 `@pytest.mark.asyncio`
+- 不要用 `asyncio.get_event_loop().run_until_complete()`（已弃用）
+- 异步测试的 fixture 如果涉及共享资源（如数据库文件），确保使用 `tmp_path` 隔离
+
+## 测试隔离
+
+- 单元测试和集成测试使用独立的临时目录（`tmp_path`）
+- 共享数据库文件会导致测试间冲突
+- 每个测试创建自己的实例，不要跨测试共享状态
 
 ## 最终规则
 

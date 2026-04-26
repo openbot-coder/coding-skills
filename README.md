@@ -90,6 +90,20 @@ coding-skills/
 - ❌ 不经代码审查就合并
 - ❌ "这太简单了不需要设计"
 
+## 参考项目
+
+- [andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) — Andrej Karpathy 风格的 AI 编程技能
+- [superpowers](https://github.com/obra/superpowers) — AI Agent 超能力技能集合
+
+## Changelog
+
+### v0.1.0 (2026-04-26)
+
+- 初始版本发布
+- 完成开发生命周期 7 阶段技能体系
+- 包含 13 个工作流技能和 15 个辅助参考文件
+- 完善 README.md 项目文档
+
 ## License
 
 [MIT](LICENSE)
