@@ -145,6 +145,17 @@ coding-skills/
 
 ## Changelog
 
+### v0.2.0 (2026-04-27)
+
+**新功能：**
+- 添加版本号 `version: 0.1.0` 到 SKILL.md
+- 添加 6 条工程原则（Hyrum's Law、Chesterton's Fence、测试金字塔、Beyoncé 规则、左移原则、二八定律）
+- 添加 8 条借口反驳表
+- 添加平台集成指南（Claude Code、Cursor、Windsurf、GitHub Copilot 等）
+
+**参考项目：**
+- 添加 agent-skills 到参考项目列表
+
 ### v0.1.0 (2026-04-26)
 
 - 初始版本发布
