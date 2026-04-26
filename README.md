@@ -18,6 +18,15 @@
 3. **精准修改** — 只动必须动的，只清理自己弄乱的，匹配现有风格
 4. **目标驱动执行** — 定义可验证的成功标准，循环直到验证通过
 
+### 工程原则
+
+5. **Hyrum's Law** — 行为的每个细节都是公共 API，即使"未记录的行为"也会被依赖
+6. **Chesterton's Fence** — 不要删除你不理解的东西，先问"为什么这是这样？"
+7. **测试金字塔** — 70% 单元测试 + 20% 集成测试 + 10% E2E 测试
+8. **Beyoncé 规则** — 如果你喜欢一个工具，就该贡献保护它（文档、测试、bug修复）
+9. **左移原则** — 越早发现问题，修复成本越低
+10. **二八定律** — 80% 的问题来自 20% 的代码区域，重点审查复杂逻辑
+
 ## 开发生命周期
 
 ```
@@ -89,6 +98,44 @@ coding-skills/
 - ❌ 不运行验证就声称"完成"
 - ❌ 不经代码审查就合并
 - ❌ "这太简单了不需要设计"
+
+## 支持的工具平台
+
+`coding-skills` 可在以下 AI 编程工具中使用：
+
+| 工具 | 集成方式 | 状态 |
+|------|----------|------|
+| **Claude Code** | 通过 CLAUDE.md 加载系统提示 | ✅ |
+| **Cursor** | 通过 .cursorrules 或 Custom Instructions | ✅ |
+| **Windsurf** | 通过 Cascade Rules | ✅ |
+| **GitHub Copilot** | 通过 Workspace Instructions | ✅ |
+| **VS Code (Continue)** | 通过 instructions 配置 | ✅ |
+| **Kiro IDE/CLI** | 通过系统提示 | ✅ |
+
+### 通用集成方法
+
+将主 SKILL.md 的内容添加到工具的系统提示或指令配置中：
+
+1. 读取 `coding-skills/SKILL.md` 的完整内容
+2. 添加到工具的系统提示开头
+3. 确保工具在每次对话开始时加载此技能
+
+### Claude Code 集成
+
+在项目根目录创建 `CLAUDE.md`：
+
+```markdown
+# Claude Code 配置
+
+你是一个遵循 structured coding-skills 的 AI 编程助手。
+
+在开始任何编码任务前，先加载并遵循 coding-skills 技能体系：
+- 阶段1：构思与设计 → brainstorming
+- 阶段2：编写计划 → writing-plans
+- ...（其他阶段）
+
+详见 `.skills/coding-skills/SKILL.md`
+```
 
 ## 参考项目
 
