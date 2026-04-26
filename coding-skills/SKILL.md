@@ -1,0 +1,222 @@
+---
+name: coding-skill
+description: "当涉及任何编码、开发、功能实现、Bug修复、调试、代码审查、测试或分支管理任务时使用。根据开发阶段路由到对应的子技能。"
+---
+
+# 编码 — 开发生命周期路由器
+
+## 概述
+
+**所有开发任务首先进入这里。** 此技能识别当前开发阶段并路由到适当的子技能。永远不要直接跳到实现技能 — 始终先确定阶段。
+
+**核心原则：** 在正确的时间使用正确的技能。每个阶段都有对应的技能。
+
+## 开发原则
+
+以下四条原则贯穿所有阶段的所有开发工作。不可妥协。
+
+### 1. 先思考再编码
+不要假设。不要隐藏困惑。暴露权衡。
+
+在实现之前：
+- 明确陈述你的假设。如果不确定，就问。
+- 如果存在多种理解，呈现出来 — 不要默默选择。
+- 如果有更简单的方法，说出来。必要时予以反驳。
+- 如果有不明白的地方，停下来。指出困惑之处。提问。
+
+### 2. 简洁优先
+用最少的代码解决问题。不做任何投机性编码。
+
+- 不添加超出需求的功能。
+- 不为一次性代码创建抽象。
+- 不添加未要求的"灵活性"或"可配置性"。
+- 不处理不可能发生的错误场景。
+- 如果你写了 200 行但 50 行就能搞定，重写它。
+- 问自己："资深工程师会觉得这太复杂了吗？" 如果是，简化它。
+
+### 3. 精准修改
+只动必须动的。只清理自己弄乱的。
+
+编辑现有代码时：
+- 不要"改进"相邻的代码、注释或格式。
+- 不要重构没有坏的东西。
+- 匹配现有风格，即使你会用不同方式。
+- 如果发现无关的死代码，提及它 — 不要删除它。
+
+当你的修改产生了孤立代码时：
+- 移除你的修改导致的无用导入/变量/函数。
+- 不要移除之前就存在的死代码，除非被要求。
+
+**检验标准：** 每一行改动都应该能直接追溯到用户的请求。
+
+### 4. 目标驱动执行
+定义成功标准。循环直到验证通过。
+
+将任务转化为可验证的目标：
+- "添加验证" → "为无效输入编写测试，然后让它们通过"
+- "修复 bug" → "编写一个复现它的测试，然后让它通过"
+- "重构 X" → "确保重构前后测试都通过"
+
+对于多步骤任务，陈述简要计划：
+```
+1. [步骤] → 验证：[检查]
+2. [步骤] → 验证：[检查]
+3. [步骤] → 验证：[检查]
+```
+
+强的成功标准让你可以独立循环。弱的标准（"让它能用"）需要不断澄清。
+
+**这些原则生效的标志：** diff 中不必要的改动更少，过度复杂导致的重写更少，澄清性问题在实现之前提出而非在犯错之后。
+
+## 阶段路由流程图
+
+```dot
+digraph coding_lifecycle {
+    "收到开发任务" [shape=doublecircle];
+    "当前什么阶段？" [shape=diamond];
+    "阶段1：构思" [shape=box];
+    "阶段2：计划" [shape=box];
+    "阶段3：执行" [shape=box];
+    "阶段4：调试" [shape=box];
+    "阶段5：审查" [shape=box];
+    "阶段6：验证" [shape=box];
+    "阶段7：收尾" [shape=box];
+
+    "收到开发任务" -> "当前什么阶段？";
+    "当前什么阶段？" -> "阶段1：构思" [label="尚无设计"];
+    "当前什么阶段？" -> "阶段2：计划" [label="设计已完成，\n尚无计划"];
+    "当前什么阶段？" -> "阶段3：执行" [label="计划已存在，\n未完全完成"];
+    "当前什么阶段？" -> "阶段4：调试" [label="bug / 错误"];
+    "当前什么阶段？" -> "阶段5：审查" [label="代码已写，\n需要审查"];
+    "当前什么阶段？" -> "阶段6：验证" [label="即将声称\n完成"];
+    "当前什么阶段？" -> "阶段7：收尾" [label="已验证，\n结束分支"];
+
+    "阶段1：构思" -> "brainstorming" [style=dashed];
+    "阶段2：计划" -> "writing-plans" [style=dashed];
+    "阶段3：执行" -> "选择执行\n策略" [style=dashed];
+    "阶段4：调试" -> "systematic-debugging" [style=dashed];
+    "阶段5：审查" -> "requesting-code-review\n或 receiving-code-review" [style=dashed];
+    "阶段6：验证" -> "verification-before-completion" [style=dashed];
+    "阶段7：收尾" -> "finishing-a-development-branch" [style=dashed];
+}
+```
+
+## 阶段 → 技能路由
+
+### 阶段1：构思与设计
+**时机：** 尚无设计，或需求不明确。
+**路由到：** `brainstorming`
+**输出：** 批准的设计文档 → 自动转入阶段2。
+
+### 阶段2：计划
+**时机：** 设计已批准但尚无实施计划。
+**路由到：** `writing-plans`
+**输出：** 实施计划保存至 `docs/plans/`。
+
+### 阶段3：执行
+**时机：** 计划已存在，任务需要实施。
+
+| 情况 | 路由到 |
+|------|--------|
+| 同一会话，独立任务 | `subagent-driven-development` |
+| 独立会话，批量执行 | `executing-plans` |
+| 多个并行任务 | `dispatching-parallel-agents` |
+
+**执行期间还应应用：**
+- `test-driven-development` — 每个任务的 TDD 纪律
+- `using-git-worktrees` — 在工作树中隔离开发
+- `using-uv` — 使用 uv 管理 Python 包
+
+### 阶段4：调试
+**时机：** 遇到 bug、出现错误、或测试意外失败。
+**路由到：** `systematic-debugging`
+
+### 阶段5：代码审查
+**时机：** 代码已编写，需要审查。
+
+| 情况 | 路由到 |
+|------|--------|
+| 请求他人审查 | `requesting-code-review` |
+| 接收并处理审查反馈 | `receiving-code-review` |
+
+### 阶段6：验证
+**时机：** 即将声称工作已完成、已修复或已通过。
+**路由到：** `verification-before-completion`
+**强制性：** 没有最新证据就不能声称完成。
+
+### 阶段7：分支收尾
+**时机：** 工作已验证，准备合并/关闭。
+**路由到：** `finishing-a-development-branch`
+
+## 快速决策表
+
+| 你听到... | 阶段 | 技能 |
+|-----------|------|------|
+| "构建 X" / "添加功能" / "创建" | 1 | brainstorming |
+| "这是设计，实现它" | 2 | writing-plans |
+| "按这个计划做" / "执行任务 N" | 3 | subagent-driven-development |
+| "修复这个 bug" / "错误：..." | 4 | systematic-debugging |
+| "审查这段代码" / "PR 反馈" | 5 | requesting/receiving-code-review |
+| "完成了吗？" / "应该没问题了" | 6 | verification-before-completion |
+| "合并这个" / "结束分支" | 7 | finishing-a-development-branch |
+
+## 规则
+
+1. **任何开发任务始终先通过此技能路由。**
+2. **绝不跳过阶段。** 如果没有设计，从阶段1开始 — 即使任务"看起来很简单"。
+3. **阶段可以重复。** 调试可能回到执行，审查可能回到调试。
+4. **任何完成声称之前，验证是强制性的。** 没有例外。
+5. **宣布阶段和技能：** "阶段 [N]：[名称] — 使用 [skill-name]"
+
+## 反模式
+
+- ❌ 不经设计直接编码
+- ❌ 没有计划就实施
+- ❌ 执行时跳过 TDD
+- ❌ 不运行验证就声称"完成"
+- ❌ 不经代码审查就合并
+- ❌ "这太简单了不需要设计"
+
+## 子技能参考
+
+## 文件结构
+
+```
+skills/coding-skills/
+├── SKILL.md                              ← 本文件
+├── workflows/                            ← 子技能工作流文档（中文）
+│   ├── brainstorming.md                   ← 阶段1
+│   ├── writing-plans.md                   ← 阶段2
+│   ├── subagent-driven-development.md     ← 阶段3
+│   ├── executing-plans.md                 ← 阶段3
+│   ├── dispatching-parallel-agents.md     ← 阶段3
+│   ├── test-driven-development.md         ← 阶段3
+│   ├── using-git-worktrees.md             ← 阶段3
+│   ├── using-uv.md                        ← 阶段3
+│   ├── systematic-debugging.md            ← 阶段4
+│   ├── requesting-code-review.md          ← 阶段5
+│   ├── receiving-code-review.md           ← 阶段5
+│   ├── verification-before-completion.md  ← 阶段6
+│   └── finishing-a-development-branch.md  ← 阶段7
+└── references/                           ← 辅助参考文件
+    ├── requesting-code-review-code-reviewer.md
+    ├── subagent-driven-development-*.md
+    ├── systematic-debugging-*.md/.ts/.sh
+    └── test-driven-development-testing-anti-patterns.md
+```
+
+| 技能 | 阶段 | 用途 |
+|------|------|------|
+| brainstorming | 1 | 需求 → 设计 |
+| writing-plans | 2 | 设计 → 实施计划 |
+| subagent-driven-development | 3 | 用子代理执行计划 |
+| executing-plans | 3 | 批量执行计划 |
+| dispatching-parallel-agents | 3 | 执行并行任务 |
+| test-driven-development | 3 | TDD 纪律 |
+| using-git-worktrees | 3 | 隔离开发 |
+| using-uv | 3 | Python uv 包管理器 |
+| systematic-debugging | 4 | 根因调试 |
+| requesting-code-review | 5 | 请求审查 |
+| receiving-code-review | 5 | 处理审查反馈 |
+| verification-before-completion | 6 | 声称前需证据 |
+| finishing-a-development-branch | 7 | 合并/关闭分支 |
