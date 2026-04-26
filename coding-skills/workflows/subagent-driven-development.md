@@ -59,7 +59,7 @@ digraph process {
     "读取计划，提取所有任务全文，记录上下文，创建TodoWrite" [shape=box];
     "还有更多任务？" [shape=diamond];
     "派发最终代码审查子代理审查整个实现" [shape=box];
-    "使用superpowers:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
+    "使用workflows:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
 
     "读取计划，提取所有任务全文，记录上下文，创建TodoWrite" -> "派发实现子代理 (./implementer-prompt.md)";
     "派发实现子代理 (./implementer-prompt.md)" -> "实现子代理有问题？";
@@ -78,7 +78,7 @@ digraph process {
     "在TodoWrite中标记任务完成" -> "还有更多任务？";
     "还有更多任务？" -> "派发实现子代理 (./implementer-prompt.md)" [label="是"];
     "还有更多任务？" -> "派发最终代码审查子代理审查整个实现" [label="否"];
-    "派发最终代码审查子代理审查整个实现" -> "使用superpowers:finishing-a-development-branch";
+    "派发最终代码审查子代理审查整个实现" -> "使用workflows:finishing-a-development-branch";
 }
 ```
 
@@ -230,13 +230,13 @@ digraph process {
 ## 集成
 
 **必需的工作流技能：**
-- **superpowers:using-git-worktrees** - 必需：开始前设置隔离工作空间
-- **superpowers:writing-plans** - 创建此技能执行的计划
-- **superpowers:requesting-code-review** - 审查子代理的代码审查模板
-- **superpowers:finishing-a-development-branch** - 所有任务完成后完成开发
+- **workflows:using-git-worktrees** - 必需：开始前设置隔离工作空间
+- **workflows:writing-plans** - 创建此技能执行的计划
+- **workflows:requesting-code-review** - 审查子代理的代码审查模板
+- **workflows:finishing-a-development-branch** - 所有任务完成后完成开发
 
 **子代理应使用：**
-- **superpowers:test-driven-development** - 子代理对每个任务遵循 TDD
+- **workflows:test-driven-development** - 子代理对每个任务遵循 TDD
 
 **替代工作流：**
-- **superpowers:executing-plans** - 用于并行会话而非同会话执行
+- **workflows:executing-plans** - 用于并行会话而非同会话执行

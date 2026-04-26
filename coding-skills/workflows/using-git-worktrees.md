@@ -43,7 +43,7 @@ grep -i "worktree.*director" CLAUDE.md 2>/dev/null
 未找到工作树目录。我应该在哪里创建工作树？
 
 1. .worktrees/（项目本地，隐藏）
-2. ~/.config/superpowers/worktrees/<project-name>/（全局位置）
+2. ~/.config/coding-skills/worktrees/<project-name>/（全局位置）
 
 你偏好哪个？
 ```
@@ -68,7 +68,7 @@ git check-ignore -q .worktrees 2>/dev/null || git check-ignore -q worktrees 2>/d
 
 **为什么关键：** 防止意外将工作树内容提交到仓库。
 
-### 对于全局目录（~/.config/superpowers/worktrees）
+### 对于全局目录（~/.config/coding-skills/worktrees）
 
 不需要 .gitignore 验证 - 完全在项目之外。
 
@@ -88,8 +88,8 @@ case $LOCATION in
   .worktrees|worktrees)
     path="$LOCATION/$BRANCH_NAME"
     ;;
-  ~/.config/superpowers/worktrees/*)
-    path="~/.config/superpowers/worktrees/$project/$BRANCH_NAME"
+  ~/.config/coding-skills/worktrees/*)
+    path="~/.config/coding-skills/worktrees/$project/$BRANCH_NAME"
     ;;
 esac
 
@@ -209,10 +209,10 @@ go test ./...
 ## 集成
 
 **被以下技能调用：**
-- **brainstorming**（第 4 阶段）— 设计批准后跟随时实现时必需
-- **subagent-driven-development** — 执行任何任务前必需
-- **executing-plans** — 执行任何任务前必需
+- **workflows:brainstorming**（第 4 阶段）— 设计批准后跟随时实现时必需
+- **workflows:subagent-driven-development** — 执行任何任务前必需
+- **workflows:executing-plans** — 执行任何任务前必需
 - 任何需要隔离工作空间的技能
 
 **配合使用：**
-- **finishing-a-development-branch** — 工作完成后清理必需
+- **workflows:finishing-a-development-branch** — 工作完成后清理必需

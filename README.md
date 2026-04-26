@@ -141,6 +141,7 @@ coding-skills/
 
 - [andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills) — Andrej Karpathy 风格的 AI 编程技能
 - [superpowers](https://github.com/obra/superpowers) — AI Agent 超能力技能集合
+- [agent-skills](https://github.com/addyosmani/agent-skills) — Addy Osmani 的 AI Agent 技能集合（斜杠命令、专家角色定义）
 
 ## Changelog
 
