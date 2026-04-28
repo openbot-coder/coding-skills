@@ -101,7 +101,9 @@ def test_specific_behavior():
 
 ---
 
-**步骤 3：编写最小实现**
+**步骤 3：coder 编写最小实现**
+
+**执行者：** coder
 
 ```python
 def function(input):
@@ -110,15 +112,24 @@ def function(input):
 
 ---
 
-**步骤 4：运行测试用例，验证通过且覆盖率 100%**
+**步骤 4：reviewer 执行测试验证**
+
+**执行者：** reviewer agent
 
 运行：`pytest tests/path/test.py::test_name -v --cov=src --cov-report=term-missing`
-期望：
+
+验证：
 - 测试全部通过
 - 覆盖率 100%
 
 **覆盖率说明：**
 - 如有无法测试的代码，标注原因（如：第三方库调用、ORM 自动生成方法等）
+
+**验证结论：**
+| 结论 | 操作 |
+|------|------|
+| 通过 | 进入步骤 5 |
+| 失败 | 返回 coder 修复，进入新一轮验证 |
 
 ---
 
