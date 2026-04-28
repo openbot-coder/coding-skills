@@ -106,7 +106,7 @@ brainstorming → 编写PRD → 评审PRD → 编写设计 → 评审设计 → 
 
 ## PRD 文档结构
 
-保存到：`docs/plans/YYYY-MM-DD-<topic>-prd.md`
+保存到：`docs/<project_name>-prd.md`
 
 ```markdown
 # [功能名称] 产品需求文档
@@ -188,7 +188,7 @@ brainstorming → 编写PRD → 评审PRD → 编写设计 → 评审设计 → 
 
 ## 详细设计文档结构
 
-保存到：`docs/plans/YYYY-MM-DD-<topic>-design.md`
+保存到：`docs/<project_name>-design.md`
 
 ```markdown
 # [功能名称] 详细设计
