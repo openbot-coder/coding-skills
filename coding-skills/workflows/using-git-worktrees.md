@@ -211,8 +211,8 @@ go test ./...
 **被以下技能调用：**
 - **workflows:brainstorming**（第 4 阶段）— 设计批准后跟随时实现时必需
 - **workflows:subagent-driven-development** — 执行任何任务前必需
-- **workflows:executing-plans** — 执行任何任务前必需
 - 任何需要隔离工作空间的技能
 
 **配合使用：**
-- **workflows:finishing-a-development-branch** — 工作完成后清理必需
+- **workflows:subagent-driven-development** — 工作完成后清理（完成开发部分）
+

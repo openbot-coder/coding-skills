@@ -189,11 +189,11 @@ digraph coding_lifecycle {
     "阶段1：构思" -> "brainstorming" [style=dashed];
     "阶段2：PRD与设计" -> "writing-prd-and-design" [style=dashed];
     "阶段3：实施计划" -> "writing-plans" [style=dashed];
-    "阶段4：执行" -> "选择执行\n策略" [style=dashed];
+    "阶段4：执行" -> "subagent-driven\n-development" [style=dashed];
     "阶段5：调试" -> "systematic-debugging" [style=dashed];
     "阶段6：审查" -> "requesting-code-review\n或 receiving-code-review" [style=dashed];
     "阶段7：验证" -> "verification-before-completion" [style=dashed];
-    "阶段8：收尾" -> "finishing-a-development-branch" [style=dashed];
+    "阶段8：收尾" -> "subagent-driven\n-development（完成开发）" [style=dashed];
 }
 ```
 
@@ -220,11 +220,7 @@ digraph coding_lifecycle {
 ### 阶段4：执行
 **时机：** 计划已存在，任务需要实施。
 
-| 情况 | 路由到 |
-|------|--------|
-| 同一会话，独立任务 | `subagent-driven-development` |
-| 独立会话，批量执行 | `executing-plans` |
-| 多个并行任务 | `dispatching-parallel-agents` |
+**路由到：** `subagent-driven-development`
 
 **执行期间还应应用：**
 - `test-driven-development` — 每个任务的 TDD 纪律
@@ -250,7 +246,7 @@ digraph coding_lifecycle {
 
 ### 阶段8：分支收尾
 **时机：** 工作已验证，准备合并/关闭。
-**路由到：** `finishing-a-development-branch`
+**路由到：** `subagent-driven-development`（包含完成开发流程）
 
 ## 快速决策表
 
@@ -273,7 +269,7 @@ digraph coding_lifecycle {
 | "修复这个 bug" / "错误：..." | 5 | systematic-debugging |
 | "审查这段代码" / "PR 反馈" | 6 | requesting/receiving-code-review |
 | "完成了吗？" / "应该没问题了" | 7 | verification-before-completion |
-| "合并这个" / "结束分支" | 8 | finishing-a-development-branch |
+| "合并这个" / "结束分支" | 8 | subagent-driven-development（完成开发） |
 
 ## 规则
 
@@ -321,17 +317,14 @@ skills/coding-skills/
 │   ├── writing-prd-and-design.md         ← 阶段2：PRD与详细设计（<1000 FP）
 │   ├── reviewing-prd-and-design.md        ← 阶段2：PRD与设计评审（独立Agent）
 │   ├── writing-plans.md                   ← 阶段3：实施计划
-│   ├── subagent-driven-development.md     ← 阶段4：子代理执行
-│   ├── executing-plans.md                 ← 阶段4：批量执行
-│   ├── dispatching-parallel-agents.md     ← 阶段4：并行任务
+│   ├── subagent-driven-development.md     ← 阶段4：子代理执行（TDD 流程）
 │   ├── test-driven-development.md         ← 阶段4：测试驱动开发
 │   ├── using-git-worktrees.md             ← 阶段4：Git Worktree隔离
 │   ├── using-uv.md                        ← 阶段4：Python uv包管理
 │   ├── systematic-debugging.md            ← 阶段5：调试
 │   ├── requesting-code-review.md          ← 阶段6：请求审查
 │   ├── receiving-code-review.md           ← 阶段6：处理反馈
-│   ├── verification-before-completion.md  ← 阶段7：验证
-│   └── finishing-a-development-branch.md   ← 阶段8：分支收尾
+│   └── verification-before-completion.md  ← 阶段7：验证
 └── references/                           ← 辅助参考文件
     ├── python-async-patterns.md           ← Python 异步开发实战模式
     ├── requesting-code-review-code-reviewer.md
@@ -346,9 +339,7 @@ skills/coding-skills/
 | brainstorming | 中小型/大型 | 1 | 需求 → 设计要点 |
 | writing-prd-and-design | 2 | 设计要点 → PRD + 详细设计 |
 | writing-plans | 3 | 详细设计 → 实施计划 |
-| subagent-driven-development | 4 | 用子代理执行计划 |
-| executing-plans | 4 | 批量执行计划 |
-| dispatching-parallel-agents | 4 | 执行并行任务 |
+| subagent-driven-development | 4 | 用子代理执行计划（含 TDD 流程） |
 | test-driven-development | 4 | TDD 纪律 + 正例/反例/边界值 + 覆盖率 |
 | using-git-worktrees | 4 | 隔离开发 |
 | using-uv | 4 | Python uv 包管理器 |
@@ -356,7 +347,6 @@ skills/coding-skills/
 | requesting-code-review | 6 | 请求审查 |
 | receiving-code-review | 6 | 处理审查反馈 |
 | verification-before-completion | 7 | 声称前需证据 |
-| finishing-a-development-branch | 8 | 合并/关闭分支 |
 
 **参考文件：**
 

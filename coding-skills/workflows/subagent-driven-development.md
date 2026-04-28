@@ -9,6 +9,120 @@ description: 在当前会话中执行具有独立任务的实现计划时使用
 
 **核心原则：** 每个任务使用新子代理 + 两阶段审查（规格然后质量）= 高质量、快迭代
 
+**TDD 流程：** 实现者执行小步骤 TDD（测试用例文档 → 测试代码 → 最小实现 → 验证 → 提交）
+
+**开始时宣布：** "我正在使用子代理驱动开发技能来执行这个计划。"
+
+## 上下文隔离原则（关键）
+
+**每次派发子代理执行子任务时，必须是全新的 agent：**
+
+- **上下文只包含：**
+  1. 当前任务内容（从计划中提取的完整任务描述）
+  2. PRD 文档位置
+  3. 详细设计文档位置
+
+- **上下文不包含：**
+  - 其他任务的实现细节
+  - 主会话的历史上下文
+  - 之前的任务执行结果
+
+**目的：** 避免上下文污染，确保每个子代理独立、专注、高效。
+
+## 子代理角色
+
+执行过程中使用两个独立的子代理：
+
+| 子代理 | 职责 |
+|--------|------|
+| **implementer** | 编写代码和测试，实现 TDD 流程 |
+| **reviewer** | 审核测试用例文档、验证测试结果 |
+
+**重要：implementer 和 reviewer 是两个不同的子代理，不能由同一个代理执行。**
+
+## TDD 执行步骤（每个任务）
+
+每个任务包含以下 TDD 步骤：
+
+### 步骤 1：implementer 编写测试用例文档，reviewer 审核
+
+**执行者：** implementer（编写）、reviewer（审核）
+
+implementer 编写测试用例需求文档，包含：
+- 测试用例编号
+- 测试前置条件
+- 测试输入
+- 预期输出
+- 覆盖场景（正例/反例/边界值）
+
+提交给 reviewer 审核：
+- 测试用例与任务描述是否一致？
+- 测试用例是否完整（覆盖所有场景）？
+- 验收标准是否可测试？
+
+**审核结论：**
+| 结论 | 操作 |
+|------|------|
+| 通过 | 进入步骤 2 |
+| 需修改 | 返回 implementer 重新编写测试用例文档，重新提交审核 |
+
+### 步骤 2：implementer 编写测试用例，验证执行失败
+
+**执行者：** implementer
+
+根据审核通过的测试用例文档编写测试代码：
+
+```python
+def test_specific_behavior():
+    """测试用例编号：TC-XXX
+    覆盖场景：正例/反例/边界值
+    """
+    result = function(input)
+    assert result == expected
+```
+
+运行测试验证失败：
+
+运行：`pytest tests/path/test.py::test_name -v`
+期望：失败，提示 "function not defined"
+
+### 步骤 3：implementer 编写最小实现
+
+**执行者：** implementer
+
+```python
+def function(input):
+    return expected
+```
+
+### 步骤 4：reviewer 执行测试验证
+
+**执行者：** reviewer
+
+运行：`pytest tests/path/test.py::test_name -v --cov=src --cov-report=term-missing`
+
+验证：
+- 测试全部通过
+- 覆盖率 100%
+
+**覆盖率说明：**
+- 如有无法测试的代码，标注原因（如：第三方库调用、ORM 自动生成方法等）
+
+**验证结论：**
+| 结论 | 操作 |
+|------|------|
+| 通过 | 进入步骤 5 |
+| 失败 | 返回 implementer 修复，进入新一轮验证 |
+
+### 步骤 5：implementer 提交代码
+
+**执行者：** implementer
+
+```bash
+git add tests/path/test.py src/path/file.py
+git commit -m "feat: add specific feature"
+```
+
 ## 何时使用
 
 ```dot
@@ -59,7 +173,7 @@ digraph process {
     "读取计划，提取所有任务全文，记录上下文，创建TodoWrite" [shape=box];
     "还有更多任务？" [shape=diamond];
     "派发最终代码审查子代理审查整个实现" [shape=box];
-    "使用workflows:finishing-a-development-branch" [shape=box style=filled fillcolor=lightgreen];
+    "进入完成开发流程" [shape=box style=filled fillcolor=lightgreen];
 
     "读取计划，提取所有任务全文，记录上下文，创建TodoWrite" -> "派发实现子代理 (./implementer-prompt.md)";
     "派发实现子代理 (./implementer-prompt.md)" -> "实现子代理有问题？";
@@ -78,7 +192,7 @@ digraph process {
     "在TodoWrite中标记任务完成" -> "还有更多任务？";
     "还有更多任务？" -> "派发实现子代理 (./implementer-prompt.md)" [label="是"];
     "还有更多任务？" -> "派发最终代码审查子代理审查整个实现" [label="否"];
-    "派发最终代码审查子代理审查整个实现" -> "使用workflows:finishing-a-development-branch";
+    "派发最终代码审查子代理审查整个实现" -> "进入完成开发流程";
 }
 ```
 
@@ -227,16 +341,175 @@ digraph process {
 - 派发修复子代理并附带具体指令
 - 不要尝试手动修复（上下文污染）
 
+## 完成开发
+
+所有任务完成后，按照以下流程完成开发：
+
+### 第 1 步：验证测试
+
+**在展示选项之前，验证测试通过：**
+
+```bash
+# 运行项目的测试套件
+npm test / cargo test / pytest / go test ./...
+```
+
+**如果测试失败：**
+```
+测试失败（<N> 个失败）。完成前必须修复：
+
+[展示失败详情]
+
+在测试通过之前无法继续合并/PR。
+```
+
+停止。不要继续第 2 步。
+
+**如果测试通过：** 继续第 2 步。
+
+### 第 2 步：确定基础分支
+
+```bash
+# 尝试常见的基础分支
+git merge-base HEAD main 2>/dev/null || git merge-base HEAD master 2>/dev/null
+```
+
+或者询问："这个分支是从 main 分出来的 - 正确吗？"
+
+### 第 3 步：展示选项
+
+展示以下 4 个选项：
+
+```
+实现完成。你想怎么做？
+
+1. 本地合并回 <base-branch>
+2. 推送并创建 Pull Request
+3. 保持分支现状（我稍后处理）
+4. 丢弃这项工作
+
+选择哪个选项？
+```
+
+**不要添加解释** — 保持选项简洁。
+
+### 第 4 步：执行选择
+
+#### 选项 1：本地合并
+
+```bash
+# 切换到基础分支
+git checkout <base-branch>
+
+# 拉取最新
+git pull
+
+# 合并功能分支
+git merge <feature-branch>
+
+# 验证合并结果的测试
+<test command>
+
+# 如果测试通过
+git branch -d <feature-branch>
+```
+
+然后：清理工作树（第 5 步）
+
+#### 选项 2：推送并创建 PR
+
+```bash
+# 推送分支
+git push -u origin <feature-branch>
+
+# 创建 PR
+gh pr create --title "<title>" --body "$(cat <<'EOF'
+## 摘要
+<2-3 条更改内容>
+
+## 测试计划
+- [ ] <验证步骤>
+EOF
+)"
+```
+
+然后：清理工作树（第 5 步）
+
+#### 选项 3：保持现状
+
+报告："保留分支 <name>。工作树保留在 <path>。"
+
+**不要清理工作树。**
+
+#### 选项 4：丢弃
+
+**先确认：**
+```
+这将永久删除：
+- 分支 <name>
+- 所有提交：<commit-list>
+- 工作树位于 <path>
+
+输入 'discard' 确认。
+```
+
+等待精确确认。
+
+确认后：
+```bash
+git checkout <base-branch>
+git branch -D <feature-branch>
+```
+
+然后：清理工作树（第 5 步）
+
+### 第 5 步：清理工作树
+
+**对于选项 1、2、4：**
+
+检查是否在工作树中：
+```bash
+git worktree list | grep $(git branch --show-current)
+```
+
+如果是：
+```bash
+git worktree remove <worktree-path>
+```
+
+**对于选项 3：** 保留工作树。
+
+### 完成开发快速参考
+
+| 选项 | 合并 | 推送 | 保留工作树 | 清理分支 |
+|------|------|------|-----------|---------|
+| 1. 本地合并 | ✓ | - | - | ✓ |
+| 2. 创建 PR | - | ✓ | ✓ | - |
+| 3. 保持现状 | - | - | ✓ | - |
+| 4. 丢弃 | - | - | - | ✓（强制） |
+
+### 完成开发红线
+
+**绝不：**
+- 测试失败时继续
+- 未验证合并结果的测试就合并
+- 未经确认删除工作
+- 未经明确请求强制推送
+
+**总是：**
+- 在提供选项前验证测试
+- 展示正好 4 个选项
+- 选项 4 要求输入确认
+- 只在选项 1 和 4 时清理工作树
+
 ## 集成
 
 **必需的工作流技能：**
 - **workflows:using-git-worktrees** - 必需：开始前设置隔离工作空间
 - **workflows:writing-plans** - 创建此技能执行的计划
 - **workflows:requesting-code-review** - 审查子代理的代码审查模板
-- **workflows:finishing-a-development-branch** - 所有任务完成后完成开发
 
 **子代理应使用：**
 - **workflows:test-driven-development** - 子代理对每个任务遵循 TDD
 
-**替代工作流：**
-- **workflows:executing-plans** - 用于并行会话而非同会话执行
+
