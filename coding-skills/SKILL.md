@@ -206,9 +206,11 @@ digraph coding_lifecycle {
 
 ### 阶段2：PRD 与详细设计
 **时机：** 构思完成，需要 PRD 和详细设计文档。
-**路由到：** `writing-prd-and-design`
-**流程：** 编写PRD → **PRD评审** → 编写设计 → **设计评审** → 通过后转入阶段3。
-**输出：** 已评审通过的 PRD 文档 + 详细设计文档 → 自动转入阶段3。
+**子 Agent：**
+- `writing-prd-and-design` — 编写 PRD 和详细设计文档
+- `reviewing-prd-and-design` — **独立评审** PRD 和详细设计文档（必须由不同 Agent 执行）
+**流程：** 编写PRD → 评审PRD → 编写设计 → 评审设计 → 审批通过 → 转入阶段3。
+**规则：** 编写者不能评审自己的文档，评审通过后才能进入下一阶段。
 
 ### 阶段3：实施计划
 **时机：** PRD 和详细设计已批准，需要实施计划。
@@ -317,6 +319,7 @@ skills/coding-skills/
 │   ├── script-development.md             ← 脚本类：功能点≤50，直接编写+测试
 │   ├── brainstorming.md                   ← 阶段1：构思
 │   ├── writing-prd-and-design.md         ← 阶段2：PRD与详细设计（<1000 FP）
+│   ├── reviewing-prd-and-design.md        ← 阶段2：PRD与设计评审（独立Agent）
 │   ├── writing-plans.md                   ← 阶段3：实施计划
 │   ├── subagent-driven-development.md     ← 阶段4：子代理执行
 │   ├── executing-plans.md                 ← 阶段4：批量执行
