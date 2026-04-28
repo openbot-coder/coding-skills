@@ -30,19 +30,20 @@
 ## 开发生命周期
 
 ```
-构思 → 计划 → 执行 → 调试 → 审查 → 验证 → 收尾
- 1      2      3      4      5      6      7
+构思 → PRD与设计 → 计划 → 执行 → 调试 → 审查 → 验证 → 收尾
+ 1        2        3      4      5      6      7      8
 ```
 
 | 阶段 | 技能 | 时机 |
 |------|------|------|
 | 1. 构思 | `brainstorming` | 尚无设计，需求不明确 |
-| 2. 计划 | `writing-plans` | 设计已批准，尚无实施计划 |
-| 3. 执行 | `subagent-driven-development` / `executing-plans` / `dispatching-parallel-agents` | 计划已存在，需要实施 |
-| 4. 调试 | `systematic-debugging` | 遇到 bug、错误或意外行为 |
-| 5. 审查 | `requesting-code-review` / `receiving-code-review` | 代码已写，需要审查 |
-| 6. 验证 | `verification-before-completion` | 即将声称完成 |
-| 7. 收尾 | `finishing-a-development-branch` | 已验证，准备合并/关闭 |
+| 2. PRD与设计 | `writing-prd-and-design` | 构思完成，需要 PRD 和详细设计 |
+| 3. 实施计划 | `writing-plans` | 设计已批准，尚无实施计划 |
+| 4. 执行 | `subagent-driven-development` / `executing-plans` / `dispatching-parallel-agents` | 计划已存在，需要实施 |
+| 5. 调试 | `systematic-debugging` | 遇到 bug、错误或意外行为 |
+| 6. 审查 | `requesting-code-review` / `receiving-code-review` | 代码已写，需要审查 |
+| 7. 验证 | `verification-before-completion` | 即将声称完成 |
+| 8. 收尾 | `finishing-a-development-branch` | 已验证，准备合并/关闭 |
 
 **执行阶段辅助技能：**
 
@@ -57,12 +58,13 @@
 | 你听到... | 阶段 | 技能 |
 |-----------|------|------|
 | "构建 X" / "添加功能" / "创建" | 1 | brainstorming |
-| "这是设计，实现它" | 2 | writing-plans |
-| "按这个计划做" / "执行任务 N" | 3 | subagent-driven-development |
-| "修复这个 bug" / "错误：..." | 4 | systematic-debugging |
-| "审查这段代码" / "PR 反馈" | 5 | requesting/receiving-code-review |
-| "完成了吗？" / "应该没问题了" | 6 | verification-before-completion |
-| "合并这个" / "结束分支" | 7 | finishing-a-development-branch |
+| "构思完成，写 PRD 和设计" | 2 | writing-prd-and-design |
+| "设计已批准，做实施计划" | 3 | writing-plans |
+| "按这个计划做" / "执行任务 N" | 4 | subagent-driven-development |
+| "修复这个 bug" / "错误：..." | 5 | systematic-debugging |
+| "审查这段代码" / "PR 反馈" | 6 | requesting/receiving-code-review |
+| "完成了吗？" / "应该没问题了" | 7 | verification-before-completion |
+| "合并这个" / "结束分支" | 8 | finishing-a-development-branch |
 
 ## 项目结构
 
@@ -70,20 +72,22 @@
 coding-skills/
 ├── SKILL.md                              ← 主入口：生命周期路由器
 ├── workflows/                            ← 子技能工作流文档
-│   ├── brainstorming.md                   ← 阶段1：构思与设计
-│   ├── writing-plans.md                   ← 阶段2：编写计划
-│   ├── subagent-driven-development.md     ← 阶段3：子代理驱动开发
-│   ├── executing-plans.md                 ← 阶段3：批量执行计划
-│   ├── dispatching-parallel-agents.md     ← 阶段3：并行代理调度
-│   ├── test-driven-development.md         ← 阶段3：测试驱动开发
-│   ├── using-git-worktrees.md             ← 阶段3：Git Worktree 隔离开发
-│   ├── using-uv.md                        ← 阶段3：Python uv 包管理
-│   ├── systematic-debugging.md            ← 阶段4：系统化调试
-│   ├── requesting-code-review.md          ← 阶段5：请求代码审查
-│   ├── receiving-code-review.md           ← 阶段5：处理审查反馈
-│   ├── verification-before-completion.md  ← 阶段6：完成前验证
-│   └── finishing-a-development-branch.md  ← 阶段7：分支收尾
+│   ├── brainstorming.md                   ← 阶段1：构思
+│   ├── writing-prd-and-design.md         ← 阶段2：PRD与详细设计
+│   ├── writing-plans.md                   ← 阶段3：实施计划
+│   ├── subagent-driven-development.md     ← 阶段4：子代理驱动开发
+│   ├── executing-plans.md                 ← 阶段4：批量执行计划
+│   ├── dispatching-parallel-agents.md     ← 阶段4：并行代理调度
+│   ├── test-driven-development.md         ← 阶段4：测试驱动开发
+│   ├── using-git-worktrees.md             ← 阶段4：Git Worktree 隔离开发
+│   ├── using-uv.md                        ← 阶段4：Python uv 包管理
+│   ├── systematic-debugging.md            ← 阶段5：系统化调试
+│   ├── requesting-code-review.md          ← 阶段6：请求代码审查
+│   ├── receiving-code-review.md           ← 阶段6：处理审查反馈
+│   ├── verification-before-completion.md  ← 阶段7：完成前验证
+│   └── finishing-a-development-branch.md   ← 阶段8：分支收尾
 └── references/                           ← 辅助参考文件
+    ├── python-async-patterns.md           ← Python 异步开发实战模式
     ├── requesting-code-review-code-reviewer.md          ← 代码审查者角色定义
     ├── subagent-driven-development-*.md                 ← 子代理角色提示词
     ├── systematic-debugging-*.md/.ts/.sh                ← 调试辅助工具与示例
@@ -145,10 +149,21 @@ coding-skills/
 
 ## Changelog
 
+### v0.3.0 (2026-04-28)
+
+**新功能：**
+- 新增阶段：PRD 与详细设计（阶段2）
+- 新增技能 `writing-prd-and-design`：将需求转化为 PRD 文档和详细设计文档
+- 优化工作流程：brainstorming → PRD与设计 → 实施计划 → 执行
+
+**流程改进：**
+- 阶段数从 7 扩展到 8
+- PRD 回答"做什么"，详细设计回答"怎么做"，实施计划回答"先做什么"
+
 ### v0.2.0 (2026-04-27)
 
 **新功能：**
-- 添加版本号 `version: 0.1.0` 到 SKILL.md
+- 添加版本号 `version: 0.2.0` 到 SKILL.md
 - 添加 6 条工程原则（Hyrum's Law、Chesterton's Fence、测试金字塔、Beyoncé 规则、左移原则、二八定律）
 - 添加 8 条借口反驳表
 - 添加平台集成指南（Claude Code、Cursor、Windsurf、GitHub Copilot 等）

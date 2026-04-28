@@ -39,20 +39,18 @@ digraph brainstorming {
     "提出2-3种方案" [shape=box];
     "展示设计各节" [shape=box];
     "用户批准设计？" [shape=diamond];
-    "撰写设计文档" [shape=box];
-    "调用writing-plans技能" [shape=doublecircle];
+    "调用writing-prd-and-design技能" [shape=doublecircle];
 
     "探索项目上下文" -> "提出澄清问题";
     "提出澄清问题" -> "提出2-3种方案";
     "提出2-3种方案" -> "展示设计各节";
     "展示设计各节" -> "用户批准设计？";
     "用户批准设计？" -> "展示设计各节" [label="否，修改"];
-    "用户批准设计？" -> "撰写设计文档" [label="是"];
-    "撰写设计文档" -> "调用writing-plans技能";
+    "用户批准设计？" -> "调用writing-prd-and-design技能" [label="是"];
 }
 ```
 
-**终止状态是调用 writing-plans。** 不要调用 frontend-design、mcp-builder 或任何其他实现技能。头脑风暴后唯一调用的技能是 writing-plans。
+**终止状态是调用 writing-prd-and-design。** 不要调用 frontend-design、mcp-builder 或任何其他实现技能。头脑风暴后唯一调用的技能是 writing-prd-and-design。
 
 ## 流程
 
@@ -81,13 +79,12 @@ digraph brainstorming {
 ## 设计之后
 
 **文档化：**
-- 将验证通过的设计写入 `docs/plans/YYYY-MM-DD-<topic>-design.md`
+- 将头脑风暴结果整理为设计要点，保存到临时文件
 - 如果可用，使用 elements-of-style:writing-clearly-and-concisely 技能
-- 将设计文档提交到 git
 
 **实现：**
-- 调用 writing-plans 技能创建详细的实现计划
-- 不要调用任何其他技能。writing-plans 是下一步。
+- 调用 writing-prd-and-design 技能创建 PRD 和详细设计文档
+- 不要调用任何其他技能。writing-prd-and-design 是下一步。
 
 ## 关键原则
 
