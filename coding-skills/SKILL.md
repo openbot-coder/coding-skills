@@ -312,47 +312,61 @@ digraph coding_lifecycle {
 ```
 skills/coding-skills/
 ├── SKILL.md                              ← 本文件
-├── workflows/                            ← 子技能工作流文档（中文）
-│   ├── script-development.md             ← 脚本类：功能点≤50，直接编写+测试
-│   ├── brainstorming.md                   ← 阶段1：构思
-│   ├── writing-prd-and-design.md         ← 阶段2：PRD与详细设计（<1000 FP）
-│   ├── reviewing-prd-and-design.md        ← 阶段2：PRD与设计评审（独立Agent）
-│   ├── writing-plans.md                   ← 阶段3：实施计划
-│   ├── subagent-driven-development.md     ← 阶段4：子代理执行（TDD 流程）
-│   ├── test-driven-development.md         ← 阶段4：测试驱动开发
-│   ├── using-git-worktrees.md             ← 阶段4：Git Worktree隔离
-│   ├── using-uv.md                        ← 阶段4：Python uv包管理
-│   ├── systematic-debugging.md            ← 阶段5：调试
-│   ├── requesting-code-review.md          ← 阶段6：请求审查
-│   ├── receiving-code-review.md           ← 阶段6：处理反馈
-│   └── verification-before-completion.md  ← 阶段7：验证
-└── references/                           ← 辅助参考文件
-    ├── python-async-patterns.md           ← Python 异步开发实战模式
-    ├── requesting-code-review-code-reviewer.md
-    ├── subagent-driven-development-*.md
-    ├── systematic-debugging-*.md/.ts/.sh
-    └── test-driven-development-testing-anti-patterns.md
+├── python-async-patterns.md              ← 通用参考：Python 异步开发实战模式
+├── brainstorming/                        ← 阶段1：构思
+│   └── SKILL.md
+├── writing-prd-and-design/               ← 阶段2：PRD与详细设计
+│   └── SKILL.md
+├── writing-plans/                        ← 阶段3：实施计划
+│   └── SKILL.md
+├── subagent-driven-development/          ← 阶段4：子代理执行（TDD流程）
+│   ├── SKILL.md
+│   └── references/                      ← 提示模板
+├── test-driven-development/              ← 阶段4：测试驱动开发
+│   ├── SKILL.md
+│   └── references/                      ← 测试反模式
+├── using-git-worktrees/                  ← 阶段4：Git Worktree隔离
+│   └── SKILL.md
+├── using-uv/                            ← 阶段4：Python uv包管理
+│   └── SKILL.md
+├── systematic-debugging/                 ← 阶段5：调试
+│   ├── SKILL.md
+│   └── references/                      ← 调试技术与示例
+├── requesting-code-review/               ← 阶段6：请求审查
+│   ├── SKILL.md
+│   └── references/                      ← 代码审查模板
+├── receiving-code-review/                ← 阶段6：处理反馈
+│   └── SKILL.md
+├── verification-before-completion/       ← 阶段7：验证
+│   └── SKILL.md
+└── script-development/                   ← 脚本类：功能点≤50
+    └── SKILL.md
 ```
 
 | 技能 | 适用规模 | 阶段 | 用途 |
 |------|----------|------|------|
-| script-development | 脚本类 (≤50 FP) | - | 直接编写+单元测试 |
-| brainstorming | 中小型/大型 | 1 | 需求 → 设计要点 |
-| writing-prd-and-design | 2 | 设计要点 → PRD + 详细设计 |
-| writing-plans | 3 | 详细设计 → 实施计划 |
-| subagent-driven-development | 4 | 用子代理执行计划（含 TDD 流程） |
-| test-driven-development | 4 | TDD 纪律 + 正例/反例/边界值 + 覆盖率 |
-| using-git-worktrees | 4 | 隔离开发 |
-| using-uv | 4 | Python uv 包管理器 |
-| systematic-debugging | 5 | 根因调试 |
-| requesting-code-review | 6 | 请求审查 |
-| receiving-code-review | 6 | 处理审查反馈 |
-| verification-before-completion | 7 | 声称前需证据 |
+| script-development/ | 脚本类 (≤50 FP) | - | 直接编写+单元测试 |
+| brainstorming/ | 中小型/大型 | 1 | 需求 → 设计要点 |
+| writing-prd-and-design/ | 2 | 设计要点 → PRD + 详细设计 |
+| writing-plans/ | 3 | 详细设计 → 实施计划 |
+| subagent-driven-development/ | 4 | 用子代理执行计划（含 TDD 流程） |
+| test-driven-development/ | 4 | TDD 纪律 + 正例/反例/边界值 + 覆盖率 |
+| using-git-worktrees/ | 4 | 隔离开发 |
+| using-uv/ | 4 | Python uv 包管理器 |
+| systematic-debugging/ | 5 | 根因调试 |
+| requesting-code-review/ | 6 | 请求审查 |
+| receiving-code-review/ | 6 | 处理审查反馈 |
+| verification-before-completion/ | 7 | 声称前需证据 |
 
 **参考文件：**
 
-| 文件 | 用途 |
-|------|------|
-| references/python-async-patterns.md | Python 异步开发实战模式（阻塞 I/O、SSE 流式、deque 滑动窗口、持久连接） |
-| references/test-driven-development-testing-anti-patterns.md | 测试反模式 |
+各子技能目录下的 `references/` 包含相关参考文档：
+
+| 目录 | 参考文件 |
+|------|----------|
+| `python-async-patterns.md` | Python 异步开发实战模式（阻塞 I/O、SSE 流式、deque 滑动窗口、持久连接） |
+| `requesting-code-review/references/` | 代码审查提示模板 |
+| `subagent-driven-development/references/` | 子代理提示模板（implementer、reviewer、spec-reviewer） |
+| `systematic-debugging/references/` | 调试技术文档、示例脚本和测试用例 |
+| `test-driven-development/references/` | 测试反模式 |
 
