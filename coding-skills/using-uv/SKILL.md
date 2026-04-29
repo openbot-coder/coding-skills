@@ -1,6 +1,6 @@
 ---
-name: "using-uv"
-description: "使用 uv Python 包管理器的指南。在处理 Python 依赖、创建虚拟环境或使用 uv 管理 Python 项目时调用。"
+name: using-uv
+description: 使用 uv Python 包管理器的指南。在处理 Python 依赖、创建虚拟环境或使用 uv 管理 Python 项目时调用。
 ---
 
 # 使用 uv - Python 包管理器
@@ -191,8 +191,9 @@ uv add --dev "ruff>=0.15.0" "pytest>=9.0.0"
 ```
 
 推荐的开发包：
+
 | 包 | 用途 |
-|---|------|
+|------|------|
 | ruff | 代码检查和格式化 |
 | black | 代码格式化 |
 | pytest | 测试框架 |
@@ -210,6 +211,7 @@ New-Item -ItemType Directory -Force -Path docs, tests, examples
 ```
 
 目录用途：
+
 | 目录 | 用途 |
 |------|------|
 | docs/ | 文档文件 |
@@ -232,7 +234,7 @@ dist/
 logs/
 
 # IDE/工具
-.trae/
+.idea/
 ```
 
 ### 第 6 步：初始化 Git 仓库
@@ -269,7 +271,6 @@ myproject/
 ├── .git/              # Git 仓库
 ├── .gitignore         # Git 忽略规则
 ├── .python-version    # Python 版本（3.13）
-├── .venv/             # 虚拟环境
 ├── pyproject.toml     # 项目配置和依赖
 ├── uv.lock            # 锁文件
 ├── README.md

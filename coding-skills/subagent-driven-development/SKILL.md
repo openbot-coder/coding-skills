@@ -125,7 +125,7 @@ git commit -m "feat: add specific feature"
 
 ## 何时使用
 
-```dot
+```
 digraph when_to_use {
     "有实现计划？" [shape=diamond];
     "任务大部分独立？" [shape=diamond];
@@ -151,7 +151,7 @@ digraph when_to_use {
 
 ## 流程
 
-```dot
+```
 digraph process {
     rankdir=TB;
 
@@ -511,5 +511,3 @@ git worktree remove <worktree-path>
 
 **子代理应使用：**
 - **workflows:test-driven-development** - 子代理对每个任务遵循 TDD
-
-

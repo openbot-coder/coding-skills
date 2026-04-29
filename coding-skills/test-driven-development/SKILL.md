@@ -495,7 +495,7 @@ import pytest
 @pytest.mark.asyncio
 async def test_async_db_write(tmp_path):
     """正例：异步数据库写入"""
-    log_db = LoggingDB(str(tmp_path / "test.duckdb"))
+    log_db = LoggingDB(str(tmp_path / "test.db"))
     await log_db.log_request(request_id="req-1", status="success")
     # 验证数据已写入
 ```
