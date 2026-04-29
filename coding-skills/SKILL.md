@@ -1,4 +1,4 @@
----
+﻿---
 version: 0.4.0
 name: coding-skills
 description: "当涉及任何编码、开发、功能实现、Bug修复、调试、代码审查、测试或分支管理任务时使用。根据项目规模和开发阶段路由到对应的子技能。"
@@ -278,6 +278,7 @@ digraph coding_lifecycle {
 3. **阶段可以重复。** 调试可能回到执行，审查可能回到调试。
 4. **任何完成声称之前，验证是强制性的。** 没有例外。
 5. **宣布阶段和技能：** "阶段 [N]：[名称] — 使用 [skill-name]"
+6. **追踪开发进度：** 在 `docs/plans/progress.md` 中记录开发进度。完成任务后，在文件中勾选对应项。如果文件不存在，则创建它。
 
 ## 反模式
 
@@ -354,3 +355,4 @@ skills/coding-skills/
 |------|------|
 | references/python-async-patterns.md | Python 异步开发实战模式（阻塞 I/O、SSE 流式、deque 滑动窗口、持久连接） |
 | references/test-driven-development-testing-anti-patterns.md | 测试反模式 |
+
