@@ -66,6 +66,44 @@
 | "完成了吗？" / "应该没问题了" | 7 | verification-before-completion |
 | "合并这个" / "结束分支" | 8 | finishing-a-development-branch |
 
+## 多工作流支持
+
+本仓库提供两套互补的 AI 编程工作流：
+
+### 1. 完整生命周期（8 阶段）
+
+适用于需要严格流程管理的复杂项目：
+
+```
+构思 → PRD与设计 → 计划 → 执行 → 调试 → 审查 → 验证 → 收尾
+  1        2        3      4      5      6      7      8
+```
+
+详见上方 [开发生命周期](#开发生命周期) 部分。
+
+### 2. 轻量级工作流（5 阶段）
+
+`vibe-coding/` 是一套轻量级开发工作流，参考 OpenSpec 设计理念：
+
+```
+需求分析 → 任务拆解 → 代码执行 → 测试验证 → 需求归档
+```
+
+**特点：**
+- **零依赖**：仅使用 Python 标准库
+- **跨平台**：Windows、macOS、Linux
+- **AI 友好**：SKILL.md 作为路由器，自动按阶段引导
+
+| 阶段 | 脚本 | 输出 |
+|------|------|------|
+| 1. 需求分析 | `design.py` | `{name}-design.md` |
+| 2. 任务拆解 | `plans.py` | `{name}-progress.md` |
+| 3. 代码执行 | `execute.py` | 更新任务状态 |
+| 4. 测试验证 | `verify.py` | 验证结果 |
+| 5. 需求归档 | `archive.py` | 归档到 archive/ |
+
+详细文档见 [vibe-coding/README.md](vibe-coding/README.md)
+
 ## 项目结构
 
 ```
