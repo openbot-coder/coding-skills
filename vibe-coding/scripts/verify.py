@@ -289,23 +289,27 @@ def complete_verification(name: str, changes_dir: Path) -> int:
             incomplete_tests.append(test_name)
     
     if incomplete_tests:
-        print(f"⚠️  以下测试尚未完成：")
+        print(f"❌ 以下测试尚未完成：")
         for test in incomplete_tests:
             print(f"   ⬜ {test}")
         print()
-        response = input("是否继续完成验证？(y/N): ").strip().lower()
-        if response != 'y':
-            print("已取消。")
-            return 1
+        print("⚠️  验证未通过，必须完成所有测试才能继续")
+        print("   请先完成测试，运行：")
+        print(f"   python scripts/verify.py --name {name} --action log")
+        print()
+        print("📋 正确流程：发现问题 → 立即报告用户 → 修复 → 重新测试")
+        return 1
     
     # 检查是否有未解决的调试问题
     if "| 🔧 进行中 |" in progress_content:
-        print("⚠️  存在未解决的调试问题。")
+        print("❌ 存在未解决的调试问题")
         print()
-        response = input("是否继续完成验证？(y/N): ").strip().lower()
-        if response != 'y':
-            print("已取消。")
-            return 1
+        print("⚠️  验证未通过，必须解决所有问题才能继续")
+        print("   请先解决调试问题，运行：")
+        print(f"   python scripts/verify.py --name {name} --action log")
+        print()
+        print("📋 正确流程：发现问题 → 立即报告用户 → 修复 → 重新测试")
+        return 1
     
     # 更新阶段4状态为已完成
     progress_content = re.sub(

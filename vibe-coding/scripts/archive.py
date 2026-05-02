@@ -308,11 +308,10 @@ def list_archived(changes_dir: Path) -> int:
 
     print(f"📂 已归档变更（{len(archived)} 个）：")
     for d in sorted(archived):
-        # 尝试读取验证结论
-        progress_file = d / f"{d.name}-progress.md"
         conclusion = ""
-        if status.exists():
-            content = status.read_text(encoding="utf-8")
+        progress_file = d / f"{d.name}-progress.md"
+        if progress_file.exists():
+            content = progress_file.read_text(encoding="utf-8")
             for line in content.split("\n"):
                 if "结论" in line:
                     conclusion = line.strip()

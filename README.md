@@ -182,6 +182,21 @@ docs/{项目名}-{version}-exploration/
 
 ## Changelog
 
+### v0.5.0 (2026-05-02)
+
+**新功能：**
+- 新增 `code-exploration` 代码探索子技能，包含完整的知识图谱分析功能
+- code-exploration 支持使用 graphify 生成交互式知识图谱
+- 代码探索报告输出到 `docs/{项目名}-{version}-exploration/` 目录
+- 所有子技能添加 version 字段（v0.1.0）
+
+**改进：**
+- 完善 README.md，添加各子技能详细说明
+- Git 分支规则：所有提交到 develop 分支，通过 PR 合并到 main
+
+**Bug 修复：**
+- 修复 `plans.py` 中 `extract_design_summary` 函数的变量名错误
+
 ### v0.4.0 (2026-05-02)
 
 **新功能：**
