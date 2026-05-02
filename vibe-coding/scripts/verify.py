@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""vibe-coding 阶段4：验证执行结果
+"""vibe-coding 阶段4：测试验证
 
 用法：
     python scripts/verify.py --name <变更名称> --action start   # 开始验证
@@ -48,16 +48,16 @@ def find_project_root() -> Path:
 
 
 def get_changes_dir(script_dir: Path, custom_dir: Optional[str] = None) -> Path:
-    """获取 changes 目录路径（默认：项目根目录/docs/changes）"""
+    """获取 changes 目录路径（默认：项目根目录/docs/vibe-coding/changes）"""
     if custom_dir:
         return Path(custom_dir)
-    # 默认路径：{项目根目录}/docs/changes
+    # 默认路径：{项目根目录}/docs/vibe-coding/changes
     project_root = find_project_root()
-    return project_root / "docs" / "changes"
+    return project_root / "docs" / "vibe-coding" / "changes"
 
 
 def parse_tasks_from_status(status_content: str) -> List[dict]:
-    """从 STATUS.md 中解析任务执行进度"""
+    """从 {name}-progress.md 中解析任务执行进度"""
     tasks = []
     
     # 查找任务执行进度表格
@@ -88,19 +88,19 @@ def parse_tasks_from_status(status_content: str) -> List[dict]:
 
 def start_verification(name: str, changes_dir: Path) -> int:
     """开始验证阶段"""
-    status_file = changes_dir / "STATUS.md"
+    progress_file = changes_dir / f"{name}-progress.md"
     
-    if not status_file.exists():
-        print(f"❌ STATUS.md 不存在：{status_file}")
+    if not progress_file.exists():
+        print(f"❌ {name}-progress.md 不存在：{progress_file}")
         print(f"   请先完成阶段2和阶段3：")
         print(f"   python scripts/plans.py --name {name}")
         return 1
     
-    status_content = status_file.read_text(encoding="utf-8")
-    tasks = parse_tasks_from_status(status_content)
+    progress_content = progress_file.read_text(encoding="utf-8")
+    tasks = parse_tasks_from_status(progress_content)
     
     if not tasks:
-        print(f"⚠️  未找到任务。请先完成阶段3（execute）。")
+        print(f"⚠️  未找到任务。请先完成阶段3（代码执行）。")
         return 1
     
     # 检查任务是否都已完成
@@ -111,8 +111,8 @@ def start_verification(name: str, changes_dir: Path) -> int:
             print(f"   ⬜ 任务{t['id']}: {t['name']}")
         print()
     
-    # 更新 STATUS.md 中的阶段4状态
-    new_status = f"""### 阶段4：verify（验证）
+    # 更新 {name}-progress.md 中的阶段4状态
+    new_status = f"""### 阶段4：测试验证
 
 | 字段 | 值 |
 |------|-----|
@@ -158,7 +158,7 @@ def start_verification(name: str, changes_dir: Path) -> int:
 ---
 """
     
-    # 更新 STATUS.md 中的阶段4部分
+    # 更新 {name}-progress.md 中的阶段4部分
     lines = status_content.split("\n")
     new_lines = []
     in_stage4 = False
@@ -185,10 +185,10 @@ def start_verification(name: str, changes_dir: Path) -> int:
         else:
             new_lines.append(line)
     
-    status_file.write_text("\n".join(new_lines), encoding="utf-8")
+    progress_file.write_text("\n".join(new_lines), encoding="utf-8")
     
     print(f"✅ 已开始验证：{name}")
-    print(f"   STATUS.md 已更新")
+    print(f"   {name}-progress.md 已更新")
     print()
     
     print("=" * 60)
@@ -206,14 +206,14 @@ def start_verification(name: str, changes_dir: Path) -> int:
 
 
 def log_verification_result(name: str, changes_dir: Path) -> int:
-    """记录验证结果到 STATUS.md"""
-    status_file = changes_dir / "STATUS.md"
+    """记录验证结果到 {name}-progress.md"""
+    progress_file = changes_dir / f"{name}-progress.md"
     
-    if not status_file.exists():
-        print(f"❌ STATUS.md 不存在：{status_file}")
+    if not progress_file.exists():
+        print(f"❌ {name}-progress.md 不存在：{progress_file}")
         return 1
     
-    print("记录验证结果到 STATUS.md")
+    print(f"记录验证结果到 {name}-progress.md")
     print()
     print("请输入以下信息：")
     print()
@@ -222,7 +222,7 @@ def log_verification_result(name: str, changes_dir: Path) -> int:
     test_status = input("测试状态 (通过/失败): ").strip()
     description = input("测试说明: ").strip()
     
-    status_content = status_file.read_text(encoding="utf-8")
+    progress_content = progress_file.read_text(encoding="utf-8")
     
     # 更新系统集成测试表
     test_map = {
@@ -239,7 +239,7 @@ def log_verification_result(name: str, changes_dir: Path) -> int:
         # 替换对应测试项的状态
         pattern = rf"(\| {test_name} \| )([⏳✅❌])(\|)"
         replacement = rf"\g<1>{status_icon}\g<3>"
-        status_content = re.sub(pattern, replacement, status_content)
+        progress_content = re.sub(pattern, replacement, progress_content)
     
     # 如果是失败，添加到调试记录
     if test_status == "失败":
@@ -250,32 +250,32 @@ def log_verification_result(name: str, changes_dir: Path) -> int:
         debug_record = f"| {datetime.now().strftime('%Y-%m-%d %H:%M')} | {description} | {root_cause} | {fix_solution} | 🔧 进行中 |"
         
         # 在调试记录表末尾添加新记录
-        status_content = status_content.replace(
+        progress_content = progress_content.replace(
             "| - | - | - | - | - |",
             f"| - | - | - | - | - |\n{debug_record}"
         )
     
-    status_file.write_text(status_content, encoding="utf-8")
+    progress_file.write_text(progress_content, encoding="utf-8")
     print()
-    print(f"✅ 验证结果已记录到 STATUS.md")
+    print(f"✅ 验证结果已记录到 {name}-progress.md")
     
     return 0
 
 
 def complete_verification(name: str, changes_dir: Path) -> int:
     """完成验证阶段"""
-    status_file = changes_dir / "STATUS.md"
+    progress_file = changes_dir / f"{name}-progress.md"
     
-    if not status_file.exists():
-        print(f"❌ STATUS.md 不存在：{status_file}")
+    if not progress_file.exists():
+        print(f"❌ {name}-progress.md 不存在：{progress_file}")
         return 1
     
-    status_content = status_file.read_text(encoding="utf-8")
+    progress_content = progress_file.read_text(encoding="utf-8")
     
     # 检查系统集成测试是否全部通过
     incomplete_tests = []
     for test_name in ["模块接口测试", "数据流转测试", "端到端测试", "异常处理测试"]:
-        if f"| {test_name} | ⏳ |" in status_content:
+        if f"| {test_name} | ⏳ |" in progress_content:
             incomplete_tests.append(test_name)
     
     if incomplete_tests:
@@ -289,7 +289,7 @@ def complete_verification(name: str, changes_dir: Path) -> int:
             return 1
     
     # 检查是否有未解决的调试问题
-    if "| 🔧 进行中 |" in status_content:
+    if "| 🔧 进行中 |" in progress_content:
         print("⚠️  存在未解决的调试问题。")
         print()
         response = input("是否继续完成验证？(y/N): ").strip().lower()
@@ -298,28 +298,28 @@ def complete_verification(name: str, changes_dir: Path) -> int:
             return 1
     
     # 更新阶段4状态为已完成
-    status_content = re.sub(
+    progress_content = re.sub(
         r"(\| \*\*状态\*\* \| )([^|]+)( \|)",
         rf"\g<1>✅ 已完成 \g<3>",
-        status_content
+        progress_content
     )
-    status_content = re.sub(
+    progress_content = re.sub(
         r"(\| \*\*完成时间\*\* \| )([^|]+)( \|)",
         rf"\g<1>{datetime.now().strftime('%Y-%m-%d %H:%M')} \g<3>",
-        status_content
+        progress_content
     )
     
     # 更新当前阶段标记
-    status_content = re.sub(
+    progress_content = re.sub(
         r"(\*\*当前阶段\*\* \| )([^|]+)( \|)",
-        rf"\g<1>阶段5：archive \g<3>",
-        status_content
+        rf"\g<1>阶段4.5：等待用户批准 \g<3>",
+        progress_content
     )
     
-    status_file.write_text(status_content, encoding="utf-8")
+    progress_file.write_text(progress_content, encoding="utf-8")
     
     print(f"✅ 验证完成：{name}")
-    print(f"   STATUS.md 已更新")
+    print(f"   {name}-progress.md 已更新")
     print()
     
     # Git 提交
@@ -329,7 +329,15 @@ def complete_verification(name: str, changes_dir: Path) -> int:
     git_commit(name, changes_dir)
     print()
     
-    print(f"下一步：python scripts/archive.py --name {name}")
+    print("=" * 60)
+    print("下一步操作")
+    print("=" * 60)
+    print()
+    print(f"⚠️  验证已通过，需要用户批准后才能归档")
+    print()
+    print(f"📋 请向用户展示验证结果，请求批准")
+    print()
+    print(f"   用户批准后，运行：python scripts/archive.py --name {name}")
     
     return 0
 
@@ -357,7 +365,7 @@ def git_commit(name: str, changes_dir: Path) -> bool:
         return False
     
     # 提交
-    commit_message = f"chore: 完成阶段4 verify {name}"
+    commit_message = f"chore: 完成阶段4 测试验证 {name}"
     success, _, stderr = run_git_command(["git", "commit", "-m", commit_message], project_root)
     if not success:
         print(f"⚠️  git commit 失败：{stderr}")

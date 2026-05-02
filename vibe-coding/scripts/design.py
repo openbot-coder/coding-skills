@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""vibe-coding 阶段1：创建变更提案
+"""vibe-coding 阶段1：创建变更设计文档
 
 用法：
-    python scripts/propose.py --name add-dark-mode --desc "添加暗色模式支持"
-    python scripts/propose.py --name fix-login-bug
+    python scripts/design.py --name add-dark-mode --desc "添加暗色模式支持"
+    python scripts/design.py --name fix-login-bug
 
-将在 docs/changes/{name}/ 下生成 proposal.md 模板。
+将生成 {name}-design.md 和 {name}-progress.md 模板。
 """
 
 import argparse
@@ -29,24 +29,24 @@ def find_project_root() -> Path:
 
 
 def get_changes_dir(script_dir: Path, custom_dir: Optional[str] = None) -> Path:
-    """获取 changes 目录路径（默认：项目根目录/docs/changes）"""
+    """获取 changes 目录路径（默认：项目根目录/docs/vibe-coding/changes）"""
     if custom_dir:
         return Path(custom_dir)
-    # 默认路径：{项目根目录}/docs/changes
+    # 默认路径：{项目根目录}/docs/vibe-coding/changes
     project_root = find_project_root()
-    return project_root / "docs" / "changes"
+    return project_root / "docs" / "vibe-coding" / "changes"
 
 
-PROPOSAL_TEMPLATE = """# 提案：{name}
+DESIGN_TEMPLATE = """# 设计文档：{name}
 
 > 创建日期：{date}
 > 状态：待填充
 
-## 提案状态
+## 设计状态
 
 | 阶段 | 状态 | 日期 | 说明 |
 |------|------|------|------|
-| 提案编写 | ✅ | {date} | |
+| 设计编写 | ✅ | {date} | |
 | Agent 审查 | ⏳ | - | |
 | 用户批准 | ⏳ | - | |
 
@@ -92,7 +92,7 @@ PROPOSAL_TEMPLATE = """# 提案：{name}
 """
 
 
-STATUS_TEMPLATE = """# 状态跟踪：{name}
+PROGRESS_TEMPLATE = """# 进度跟踪：{name}
 
 > 创建日期：{date}
 > 最后更新：-
@@ -102,21 +102,21 @@ STATUS_TEMPLATE = """# 状态跟踪：{name}
 | 字段 | 值 |
 |------|---|
 | **变更名称** | {name} |
-| **当前阶段** | 阶段1：propose |
+| **当前阶段** | 阶段1：需求分析 |
 | **创建日期** | {date} |
 | **最后更新** | - |
 
-## 提案状态
+## 设计状态
 
 | 阶段 | 状态 | 日期 | 说明 |
 |------|------|------|------|
-| 提案编写 | ✅ | {date} | |
+| 设计编写 | ✅ | {date} | |
 | Agent 审查 | ⏳ | - | |
 | 用户批准 | ⏳ | - | |
 
 ---
 
-## 阶段2：plans
+## 阶段2：任务拆解
 
 | 字段 | 值 |
 |------|---|
@@ -135,7 +135,7 @@ STATUS_TEMPLATE = """# 状态跟踪：{name}
 
 ---
 
-## 阶段3：execute
+## 阶段3：代码执行
 
 | 字段 | 值 |
 |------|---|
@@ -152,7 +152,7 @@ STATUS_TEMPLATE = """# 状态跟踪：{name}
 
 ---
 
-## 阶段4：verify
+## 阶段4：测试验证
 
 | 字段 | 值 |
 |------|---|
@@ -177,7 +177,7 @@ STATUS_TEMPLATE = """# 状态跟踪：{name}
 
 ---
 
-## 阶段5：archive
+## 阶段5：需求归档
 
 | 字段 | 值 |
 |------|---|
@@ -192,27 +192,27 @@ STATUS_TEMPLATE = """# 状态跟踪：{name}
 
 | 日期 | 阶段 | 操作 | 说明 |
 |------|------|------|------|
-| {date} | 阶段1 | 创建 | 变更提案已创建 |
+| {date} | 阶段1 | 创建 | 变更设计已创建 |
 """
 
 
 def create_proposal(name: str, desc: Optional[str], changes_dir: Path) -> int:
-    """创建变更提案目录和 proposal.md"""
+    """创建变更设计目录和 {name}-design.md"""
     change_dir = changes_dir / name
 
     # 检查是否已存在
     if change_dir.exists():
-        proposal_file = change_dir / "proposal.md"
-        if proposal_file.exists():
-            print(f"❌ 变更 '{name}' 已存在：{proposal_file}")
-            print(f"   如需修改，请直接编辑 proposal.md")
+        design_file = change_dir / f"{name}-design.md"
+        if design_file.exists():
+            print(f"❌ 变更 '{name}' 已存在：{design_file}")
+            print(f"   如需修改，请直接编辑 {name}-design.md")
             return 1
 
     # 创建目录
     change_dir.mkdir(parents=True, exist_ok=True)
 
-    # 生成 proposal.md
-    content = PROPOSAL_TEMPLATE.format(
+    # 生成 {name}-design.md
+    content = DESIGN_TEMPLATE.format(
         name=name,
         date=date.today().isoformat(),
     )
@@ -224,26 +224,26 @@ def create_proposal(name: str, desc: Optional[str], changes_dir: Path) -> int:
             desc,
         )
 
-    proposal_file = change_dir / "proposal.md"
-    proposal_file.write_text(content, encoding="utf-8")
+    design_file = change_dir / f"{name}-design.md"
+    design_file.write_text(content, encoding="utf-8")
 
-    # 创建 STATUS.md
-    status_content = STATUS_TEMPLATE.format(
+    # 创建 {name}-progress.md
+    progress_content = PROGRESS_TEMPLATE.format(
         name=name,
         date=date.today().isoformat(),
     )
-    status_file = change_dir / "STATUS.md"
+    progress_file = change_dir / f"{name}-progress.md"
     try:
-        status_file.write_text(status_content, encoding="utf-8")
-        print(f"✅ 状态文件已创建：{status_file}")
+        progress_file.write_text(progress_content, encoding="utf-8")
+        print(f"✅ 进度文件已创建：{progress_file}")
     except Exception as e:
-        print(f"⚠️  状态文件创建失败：{e}")
+        print(f"⚠️  进度文件创建失败：{e}")
 
     # 输出结果
-    print(f"✅ 提案已创建：{proposal_file}")
+    print(f"✅ 设计文档已创建：{design_file}")
     print()
     print(f"📋 下一步：")
-    print(f"   1. 编辑 proposal.md，填充目标、背景和成功标准")
+    print(f"   1. 编辑 {name}-design.md，填充目标、背景和成功标准")
     print(f"   2. 确认提案完整后，运行：")
     print(f"      python scripts/plans.py --name {name}")
 
@@ -252,11 +252,11 @@ def create_proposal(name: str, desc: Optional[str], changes_dir: Path) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="vibe-coding 阶段1：创建变更提案",
+        description="vibe-coding 阶段1：创建变更设计文档",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="示例：\n"
-               "  python scripts/propose.py --name add-dark-mode\n"
-               "  python scripts/propose.py --name fix-login-bug --desc '修复登录超时问题'",
+               "  python scripts/design.py --name add-dark-mode\n"
+               "  python scripts/design.py --name fix-login-bug --desc '修复登录超时问题'",
     )
     parser.add_argument("--name", required=True, help="变更名称（小写字母和连字符）")
     parser.add_argument("--desc", default=None, help="简要描述")

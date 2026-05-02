@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""vibe-coding 阶段2：制定实施计划
+"""vibe-coding 阶段2：任务拆解
 
 用法：
     python scripts/plans.py --name add-dark-mode
 
 功能：
-    - 基于提案更新 STATUS.md 中的阶段2内容
+    - 基于设计文档更新 {name}-progress.md 中的阶段2内容
     - 不再生成单独的 plans.md 和 tasks.md 文件
     - 阶段完成时提交 Git
 """
@@ -28,12 +28,12 @@ def find_project_root() -> Path:
 
 
 def get_changes_dir(script_dir: Path, custom_dir: Optional[str] = None) -> Path:
-    """获取 changes 目录路径（默认：项目根目录/docs/changes）"""
+    """获取 changes 目录路径（默认：项目根目录/docs/vibe-coding/changes）"""
     if custom_dir:
         return Path(custom_dir)
-    # 默认路径：{项目根目录}/docs/changes
+    # 默认路径：{项目根目录}/docs/vibe-coding/changes
     project_root = find_project_root()
-    return project_root / "docs" / "changes"
+    return project_root / "docs" / "vibe-coding" / "changes"
 
 
 def run_git_command(args: list, cwd: Optional[Path] = None) -> tuple:
@@ -85,16 +85,16 @@ def git_commit(name: str, stage: str, changes_dir: Path) -> bool:
     return True
 
 
-def read_proposal(change_dir: Path) -> str:
-    """读取提案内容作为上下文参考"""
-    proposal_file = change_dir / "proposal.md"
-    if proposal_file.exists():
-        return proposal_file.read_text(encoding="utf-8")
+def read_design(change_dir: Path, name: str) -> str:
+    """读取设计内容作为上下文参考"""
+    design_file = change_dir / f"{name}-design.md"
+    if design_file.exists():
+        return design_file.read_text(encoding="utf-8")
     return ""
 
 
-def extract_proposal_summary(proposal_content: str) -> str:
-    """从提案中提取目标作为提示"""
+def extract_design_summary(design_content: str) -> str:
+    """从设计中提取目标作为提示"""
     if not proposal_content:
         return ""
     
@@ -116,9 +116,9 @@ def extract_proposal_summary(proposal_content: str) -> str:
 
 
 def update_status_for_plans(status_file: Path, name: str, proposal_summary: str) -> bool:
-    """更新 STATUS.md 中的阶段2内容"""
+    """更新 {name}-progress.md 中的阶段2内容"""
     if not status_file.exists():
-        print(f"❌ STATUS.md 不存在：{status_file}")
+        print(f"❌ {name}-progress.md 不存在：{status_file}")
         print(f"   请先确保变更目录存在")
         return False
     
@@ -139,7 +139,7 @@ def update_status_for_plans(status_file: Path, name: str, proposal_summary: str)
             new_lines[-1] = line.replace("-", timestamp)
         
         # 标记阶段2开始
-        if "### 阶段2：plans" in line:
+        if "### 阶段2：任务拆解" in line:
             in_plans_section = True
             continue
         
@@ -163,34 +163,35 @@ def update_status_for_plans(status_file: Path, name: str, proposal_summary: str)
 
 
 def create_plans(name: str, changes_dir: Path) -> int:
-    """基于提案制定实施计划"""
+    """基于设计制定实施计划"""
     change_dir = changes_dir / name
-    status_file = changes_dir / "STATUS.md"
+    progress_file = changes_dir / f"{name}-progress.md"
+    status_file = progress_file  # 兼容旧变量名
 
     # 检查变更目录是否存在
     if not change_dir.exists():
         print(f"❌ 变更目录不存在：{change_dir}")
-        print(f"   请先创建提案")
+        print(f"   请先创建设计文档")
         return 1
 
-    # 读取提案内容
-    proposal_content = read_proposal(change_dir)
-    proposal_summary = extract_proposal_summary(proposal_content)
+    # 读取设计内容
+    design_content = read_design(change_dir, name)
+    design_summary = extract_design_summary(design_content)
 
-    # 更新 STATUS.md
-    updated = update_status_for_plans(status_file, name, proposal_summary)
+    # 更新 {name}-progress.md
+    updated = update_status_for_plans(status_file, name, design_summary)
 
     # 输出结果
-    print(f"✅ 阶段2：plans 已启动")
+    print(f"✅ 阶段2：任务拆解 已启动")
     print(f"📁 变更目录：{change_dir}")
-    print(f"📋 状态文件：{status_file}")
+    print(f"📋 进度文件：{progress_file}")
     print()
 
-    if proposal_summary:
-        print(f"📖 提案目标参考：{proposal_summary}")
+    if design_summary:
+        print(f"📖 设计文档目标参考：{design_summary}")
     
     print(f"📋 下一步：")
-    print(f"   1. 编辑 STATUS.md 中阶段2的计划概述")
+    print(f"   1. 编辑 {name}-progress.md 中阶段2的计划概述")
     print(f"   2. 填充任务清单（每个任务 10~20 个功能点）")
     print(f"   3. 填充任务详情（功能列表、验证方式）")
     print(f"   4. 计划完整后，运行：")
@@ -200,14 +201,14 @@ def create_plans(name: str, changes_dir: Path) -> int:
     print("=" * 60)
     print("Git 提交")
     print("=" * 60)
-    git_commit(name, "阶段2 plans", changes_dir)
+    git_commit(name, "阶段2 任务拆解", changes_dir)
 
     return 0
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="vibe-coding 阶段2：制定实施计划",
+        description="vibe-coding 阶段2：任务拆解",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="示例：\n"
                "  python scripts/plans.py --name add-dark-mode",

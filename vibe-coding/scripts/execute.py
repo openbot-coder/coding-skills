@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""vibe-coding 阶段3：执行任务管理（采用 TDD 模式）
+"""vibe-coding 阶段3：代码执行（采用 TDD 模式）
 
 用法：
     python scripts/execute.py --name add-dark-mode --action list
@@ -10,7 +10,7 @@
 功能：
     - 每个子任务完成时自动提交 Git
     - TDD 模式指导
-    - 更新 STATUS.md 任务状态
+    - 更新 progress.md 任务状态
 """
 
 import argparse
@@ -36,12 +36,12 @@ def find_project_root() -> Path:
 
 
 def get_changes_dir(script_dir: Path, custom_dir: Optional[str] = None) -> Path:
-    """获取 changes 目录路径（默认：项目根目录/docs/changes）"""
+    """获取 changes 目录路径（默认：项目根目录/docs/vibe-coding/changes）"""
     if custom_dir:
         return Path(custom_dir)
-    # 默认路径：{项目根目录}/docs/changes
+    # 默认路径：{项目根目录}/docs/vibe-coding/changes
     project_root = find_project_root()
-    return project_root / "docs" / "changes"
+    return project_root / "docs" / "vibe-coding" / "changes"
 
 
 def run_git_command(args: list, cwd: Optional[Path] = None) -> tuple:
@@ -94,7 +94,7 @@ def git_commit_on_complete(task_id: str, task_name: str, changes_dir: Path) -> b
 
 
 def parse_tasks_from_status(status_content: str) -> List[dict]:
-    """从 STATUS.md 解析任务列表"""
+    """从 progress.md 解析任务列表"""
     tasks = []
     # 查找任务清单表格
     in_task_table = False
@@ -117,7 +117,7 @@ def parse_tasks_from_status(status_content: str) -> List[dict]:
 
 
 def update_status_file(status_file: Path, task_id: str, action: str) -> bool:
-    """更新 STATUS.md 中的任务状态"""
+    """更新 {name}-progress.md 中的任务状态"""
     if not status_file.exists():
         return False
     
@@ -170,18 +170,18 @@ def get_status_label(status: str) -> str:
 
 def list_tasks(name: str, changes_dir: Path) -> int:
     """列出任务状态"""
-    status_file = changes_dir / "STATUS.md"
+    progress_file = changes_dir / f"{name}-progress.md"
 
-    if not status_file.exists():
-        print(f"❌ STATUS.md 不存在：{status_file}")
+    if not progress_file.exists():
+        print(f"❌ {name}-progress.md 不存在：{progress_file}")
         print(f"   请先运行：python scripts/plans.py --name {name}")
         return 1
 
-    status_content = status_file.read_text(encoding="utf-8")
-    tasks = parse_tasks_from_status(status_content)
+    progress_content = progress_file.read_text(encoding="utf-8")
+    tasks = parse_tasks_from_status(progress_content)
 
     if not tasks:
-        print(f"⚠️  未找到任务。请先在 STATUS.md 中定义任务。")
+        print(f"⚠️  未找到任务。请先在 {name}-progress.md 中定义任务。")
         return 1
 
     # 统计
@@ -215,10 +215,10 @@ def list_tasks(name: str, changes_dir: Path) -> int:
 
 def start_task(name: str, task_id: str, changes_dir: Path) -> int:
     """开始执行任务（提示 TDD 流程）"""
-    status_file = changes_dir / "STATUS.md"
+    progress_file = changes_dir / f"{name}-progress.md"
 
-    if not status_file.exists():
-        print(f"❌ STATUS.md 不存在：{status_file}")
+    if not progress_file.exists():
+        print(f"❌ {name}-progress.md 不存在：{progress_file}")
         return 1
 
     print(f"🚀 开始执行：任务{task_id}")
@@ -261,22 +261,22 @@ def start_task(name: str, task_id: str, changes_dir: Path) -> int:
 
 def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
     """将任务标记为完成"""
-    status_file = changes_dir / "STATUS.md"
+    progress_file = changes_dir / f"{name}-progress.md"
 
-    if not status_file.exists():
-        print(f"❌ STATUS.md 不存在：{status_file}")
+    if not progress_file.exists():
+        print(f"❌ {name}-progress.md 不存在：{progress_file}")
         return 1
 
     # 获取任务名称用于 Git 提交
-    status_content = status_file.read_text(encoding="utf-8")
-    tasks = parse_tasks_from_status(status_content)
+    progress_content = progress_file.read_text(encoding="utf-8")
+    tasks = parse_tasks_from_status(progress_content)
     task_info = next((t for t in tasks if t["id"] == task_id), None)
     task_name = task_info["name"] if task_info else f"任务{task_id}"
 
-    updated = update_status_file(status_file, task_id, "done")
+    updated = update_status_file(progress_file, task_id, "done")
 
     if not updated:
-        print(f"⚠️  请在 STATUS.md 中手动更新任务状态为 ✅")
+        print(f"⚠️  请在 {name}-progress.md 中手动更新任务状态为 ✅")
 
     print(f"✅ 任务完成：任务{task_id}")
     print()
@@ -288,19 +288,19 @@ def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
     git_commit_on_complete(task_id, task_name, changes_dir)
     print()
     
-    print(f"📌 记录 TDD 循环次数到 STATUS.md：")
+    print(f"📌 记录 TDD 循环次数到 {name}-progress.md：")
     print(f"   - 红：__ 次")
     print(f"   - 绿：__ 次")
     print(f"   - 重构：__ 次")
     print()
-    print(f"📌 记录测试用例数到 STATUS.md：")
+    print(f"📌 记录测试用例数到 {name}-progress.md：")
     print(f"   - 正例：__ 个")
     print(f"   - 反例：__ 个")
     print(f"   - 边界值：__ 个")
 
     # 检查是否还有待执行任务
-    status_content = status_file.read_text(encoding="utf-8")
-    tasks = parse_tasks_from_status(status_content)
+    progress_content = progress_file.read_text(encoding="utf-8")
+    tasks = parse_tasks_from_status(progress_content)
     pending = [t for t in tasks if t["status"] == "pending"]
 
     if pending:
@@ -315,7 +315,7 @@ def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
         print(f"🎉 所有任务处理完毕！({done_count}/{total} 完成)")
         print()
         print(f"📌 大阶段完成，请提交 Git：")
-        print(f"   git add . && git commit -m \"chore: 完成阶段3 execute {name}\"")
+        print(f"   git add . && git commit -m \"chore: 完成阶段3 代码执行 {name}\"")
         print()
         print(f"   下一步：python scripts/verify.py --name {name}")
 
@@ -324,23 +324,23 @@ def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
 
 def skip_task(name: str, task_id: str, changes_dir: Path) -> int:
     """跳过任务"""
-    status_file = changes_dir / "STATUS.md"
+    progress_file = changes_dir / f"{name}-progress.md"
 
-    if not status_file.exists():
-        print(f"❌ STATUS.md 不存在：{status_file}")
+    if not progress_file.exists():
+        print(f"❌ {name}-progress.md 不存在：{progress_file}")
         return 1
 
-    updated = update_status_file(status_file, task_id, "skip")
+    updated = update_status_file(progress_file, task_id, "skip")
 
     if not updated:
-        print(f"⚠️  请在 STATUS.md 中手动更新任务状态为 ⏭️")
+        print(f"⚠️  请在 {name}-progress.md 中手动更新任务状态为 ⏭️")
 
     print(f"⏭️  任务已跳过：任务{task_id}")
     print(f"   原因：_______________")
 
     # 检查剩余任务
-    status_content = status_file.read_text(encoding="utf-8")
-    tasks = parse_tasks_from_status(status_content)
+    progress_content = progress_file.read_text(encoding="utf-8")
+    tasks = parse_tasks_from_status(progress_content)
     pending = [t for t in tasks if t["status"] == "pending"]
 
     if pending:

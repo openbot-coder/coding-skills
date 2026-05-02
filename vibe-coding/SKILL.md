@@ -1,10 +1,48 @@
 ---
-version: 0.1.0
+version: 0.2.0
 name: vibe-coding
-description: "轻量级 AI 编程技能。五阶段工作流：propose（含 writing-proposal + review-proposal 循环 + 用户批准）→ plans → execute → verify → archive。适用于 AI 编程助手引导的迭代式开发。"
+description: "轻量级 AI 编程技能。五阶段工作流：需求分析（writing-design + review-design 循环 + 用户批准）→ 任务拆解 → 代码执行 → 测试验证 → 需求归档。"
 ---
 
 # Vibe Coding — 轻量级开发工作流
+
+## 防跑偏检查
+
+**编码过程中，必须在以下时机检查是否跑偏：**
+- 开始每个任务前
+- 每完成一个子功能后
+- 遇到问题时
+
+### 检查清单
+
+```
+[ ] 我当前在做什么任务？
+[ ] 这个任务的目标是什么？
+[ ] 我的改动是否符合原始设计？
+[ ] 我是否在解决原始问题，而不是发现新问题就去做？
+[ ] 如果发现新问题，是否应该先记录再决定是否处理？
+```
+
+### 警告信号
+
+如果发现自己有以下行为，立即停止并纠正：
+
+| 警告信号 | 处理方式 |
+|----------|----------|
+| "顺便把这个也修了吧" | 记录到 TODO，不在本任务处理 |
+| "这个函数有问题，我先改改" | 确认是否影响当前任务，影响则记录，不影响则跳过 |
+| "发现一个新需求" | 暂停，记录到 backlog，回到当前任务 |
+| "这个架构不太好，重构一下" | 不重构，除非明确被要求 |
+
+## 首次启动检查
+
+> 详细规则见 [initialize 子技能](./initialize/SKILL.md)
+
+首次使用本技能时，必须执行初始化：
+
+1. **检查** `docs/vibe-coding/` 是否存在
+2. **不存在** → 绿地项目初始化（创建目录结构）
+3. **存在** → 棕地项目初始化（使用 graphify 扫描代码库）
 
 ## 概述
 
@@ -127,72 +165,74 @@ description: "轻量级 AI 编程技能。五阶段工作流：propose（含 wri
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ 阶段1：propose（提案）                                          │
+│ 阶段1：需求分析（Requirements Analysis）                        │
 │                                                                 │
-│  writing-proposal → review-proposal 循环 → [用户批准]          │
+│  writing-design → review-design 循环 → [用户批准]                │
 │                                                                 │
-│  - writing-proposal：需求调研，编写提案草稿                     │
-│  - review-proposal：审查提案，发现问题返回修改                   │
+│  - writing-design：需求调研，编写设计文档                         │
+│  - review-design：审查设计，发现问题返回修改                      │
 │  - 循环直到审查通过 → 用户批准 → 进入阶段2                       │
 └─────────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ 阶段2：plans（计划）                                            │
+│ 阶段2：任务拆解（Task Breakdown）                               │
 │  - 制定实施计划，分解任务清单                                    │
 └─────────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ 阶段3：execute（执行）                                          │
+│ 阶段3：代码执行（Implementation）                               │
 │  - 按任务清单执行编码                                            │
 └─────────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ 阶段4：verify（验证）                                           │
-│  - 验证实现是否满足提案要求                                       │
+│ 阶段4：测试验证（Testing & Verification）                       │
+│  - 验证实现是否满足设计要求                                       │
+│  - 验证通过后 → [用户批准] → 进入阶段5                          │
 └─────────────────────────────────────────────────────────────────┘
                             ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ 阶段5：archive（归档）                                          │
+│ 阶段5：需求归档（Archiving）                                    │
 │  - 归档收尾                                                      │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 | 阶段 | 脚本/技能 | 时机 | 输出 |
 |------|-----------|------|------|
-| 1. propose | writing-proposal + review-proposal | 需求出现，需要提案 | `proposal.md`（已批准） |
-| 2. plans | `python scripts/plans.py --name <名称>` | 提案已批准，需要计划 | `STATUS.md`（计划概述 + 任务清单） |
-| 3. execute | `python scripts/execute.py --name <名称> --task <编号> --action <操作>` | 计划已定，开始编码 | 更新 `STATUS.md` 任务状态 |
-| 4. verify | `python scripts/verify.py --name <名称>` | 编码完成，需要验证 | `verification.md` |
-| 5. archive | `python scripts/archive.py --name <名称>` | 验证通过，归档收尾 | 移动到 `archive/` |
+| 1. 需求分析 | writing-design + review-design | 需求出现，需要设计 | `{name}-design.md`（已批准） |
+| 2. 任务拆解 | `python scripts/plans.py --name <名称>` | 设计已批准，需要计划 | `{name}-progress.md`（计划概述 + 任务清单） |
+| 3. 代码执行 | `python scripts/execute.py --name <名称> --task <编号> --action <操作>` | 计划已定，开始编码 | 更新 `{name}-progress.md` 任务状态 |
+| 4. 测试验证 | `python scripts/verify.py --name <名称>` | 编码完成，需要验证 | `{name}-progress.md` |
+| 4.5 用户批准 | - | 验证通过，需要用户确认 | 更新 `{name}-progress.md` |
+| 5. 需求归档 | `python scripts/archive.py --name <名称>` | 用户批准，归档收尾 | 移动到 `archive/` |
 
 ## 阶段路由
 
-### 阶段1：propose（提案）
+### 阶段1：需求分析（Requirements Analysis）
 
-阶段1是**提案编写和审核循环**，包含以下子流程：
+阶段1是**设计文档编写和审核循环**，包含以下子流程：
 
 ```
-writing-proposal → review-proposal 循环 → [用户批准] → 阶段2
+writing-design → review-design 循环 → [用户批准] → 阶段2
 ```
 
-**子流程1：writing-proposal（需求调研）**
-> 详细规则见 [writing-proposal 子技能](./writing-proposal/SKILL.md)
+**子流程1：writing-design（需求调研）**
+> 详细规则见 [writing-design 子技能](./writing-design/SKILL.md)
 >
-> **writing-proposal** 会帮助你：
+> **writing-design** 会帮助你：
 > - 探索项目上下文，理解真正的问题
 > - 通过提问澄清需求、约束和成功标准
 > - 提出 2-3 种方案并分析权衡
-> - 将需求要点和设计方案记录到 `proposal.md`
+> - 将需求要点和设计方案记录到 `{name}-design.md`
 >
 > **操作：**
-> 1. 运行 `python scripts/propose.py --name <变更名称> --desc "<简要描述>"`
-> 2. 完成需求调研，记录到 `proposal.md`
-> 3. 提案草稿完成后，进入 **review-proposal**
+> 1. 运行 `python scripts/design.py --name <变更名称> --desc "<简要描述>"`
+> 2. 完成需求调研，记录到 `{name}-design.md`
+> 3. 设计文档草稿完成后，进入 **review-design**
 
-**子流程2：review-proposal（审查提案）**
-> 详细规则见 [review-proposal 子技能](./review-proposal/SKILL.md)
+**子流程2：review-design（审查设计）**
+> 详细规则见 [review-design 子技能](./review-design/SKILL.md)
 >
-> **review-proposal** 会审查：
+> **review-design** 会审查：
 > - 目标是否清晰、可验证
 > - 背景是否充分
 > - 成功标准是否可测试
@@ -201,28 +241,28 @@ writing-proposal → review-proposal 循环 → [用户批准] → 阶段2
 > - 安全风险和影响范围
 >
 > **审查流程：**
-> 1. **审查提案**：读取 `docs/changes/{name}/proposal.md`
+> 1. **审查设计**：读取 `docs/vibe-coding/changes/{name}/{name}-design.md`
 > 2. **检查完整性**：目标、背景、成功标准、范围
 > 3. **检查质量**：假设、风险、可验证性、安全、影响范围
 > 4. **输出审查报告**：指出问题或确认通过
-> 5. 发现问题 → 返回 **writing-proposal** 修改 → 重新审查
+> 5. 发现问题 → 返回 **writing-design** 修改 → 重新审查
 > 6. 审查通过 → **请求用户批准**
 
 **子流程3：用户批准**
 > 审查通过后，必须获得用户明确批准才能进入阶段2。
 >
 > **批准后操作：**
-> 1. 更新 `proposal.md` 中的"提案状态"表
-> 2. 执行 Git 提交：`git add proposal.md && git commit -m "feat: {name} 提案已获批准"`
-> 3. 进入阶段2（plans）
+> 1. 更新 `{name}-design.md` 中的"设计状态"表
+> 2. 执行 Git 提交：`git add {name}-design.md && git commit -m "feat: {name} 设计已获批准"`
+> 3. 进入阶段2（任务拆解）
 
 **规则：**
 - **循环是正常的**：反复修改-审查是正常流程，直到通过
-- **编写者不能审查自己的提案**
+- **编写者不能审查自己的设计**
 - **用户批准是进入阶段2的唯一入口**
-- **每次阶段切换时更新 `STATUS.md`**：记录阶段开始/完成时间
+- **每次阶段切换时更新 `{name}-progress.md`**：记录阶段开始/完成时间
 
-### 阶段2：plans（计划）
+### 阶段2：任务拆解（Task Breakdown）
 
 **概述: **
 编写全面的实现计划，假设工程师对代码库零上下文且品味存疑。记录他们需要知道的一切：每个任务要触及哪些文件、代码、测试、可能需要查看的文档、如何测试。以小步骤任务的形式给出整个计划。DRY。YAGNI。TDD。频繁提交。
@@ -230,21 +270,21 @@ writing-proposal → review-proposal 循环 → [用户批准] → 阶段2
 假设他们是熟练的开发者，但几乎不了解我们的工具集或问题领域。
 假设他们不太了解好的测试设计。
 
-**时机：** 提案已获用户批准，需要制定实施计划。
+**时机：** 设计已获用户批准，需要制定实施计划。
 
 **操作：**
 1. 运行 `python scripts/plans.py --name <变更名称>`
-2. 在 `STATUS.md` 中填充阶段2的计划概述：架构方案、实施步骤、依赖、风险
-3. 在 `STATUS.md` 中填充任务清单（每个任务 10~20 个功能点）
-4. 确认计划和任务清单完整后，进入阶段3（execute）
+2. 在 `{name}-progress.md` 中填充阶段2的计划概述：架构方案、实施步骤、依赖、风险
+3. 在 `{name}-progress.md` 中填充任务清单（每个任务 10~20 个功能点）
+4. 确认计划和任务清单完整后，进入阶段3（代码执行）
 
 **规则：**
 - 每个任务必须是可独立验证的
 - **任务粒度：每个任务 10~20 个功能点**
 - 任务之间标注依赖关系
-- plans 和 tasks 内容整合到 `STATUS.md` 中
+- plans 和 tasks 内容整合到 `{name}-progress.md` 中
 
-### 阶段3：execute（执行）
+### 阶段3：代码执行（Implementation）
 **时机：** 计划已定，任务需要实施。
 
 > **采用 TDD 模式**：参考 [test-driven-development 子技能](./test-driven-development/SKILL.md)
@@ -267,13 +307,31 @@ writing-proposal → review-proposal 循环 → [用户批准] → 阶段2
 - 未覆盖行必须以 `# UNCOVERED: [原因]` 标注原因
 - **仅需单元测试，无需集成测试**
 
+**编码前必做：了解现有代码结构**
+
+> 使用 **ripgrep** 了解将要修改的代码：
+> 1. 找到要修改的文件和函数
+> 2. 理解现有实现的逻辑
+> 3. 找到相关的测试文件
+> 4. 确认修改点不会破坏现有功能
+
+```
+# 示例：了解要修改的代码
+rg -n "函数名"                          ← 搜索函数定义和调用
+rg -n "import.*模块"                    ← 查找依赖
+find . -name "*.test.*" -o -name "*_test.*"  ← 找测试文件
+```
+
 **操作：**
 1. 运行 `python scripts/execute.py --name <变更名称> --action list` 查看任务
 2. 开始任务：`python scripts/execute.py --name <变更名称> --task <编号> --action start`
-3. **为任务创建子 Agent 进行 TDD 开发**（详见下方子 Agent 规则）
-4. 完成任务：`python scripts/execute.py --name <变更名称> --task <编号> --action done`
-5. 跳过任务：`python scripts/execute.py --name <变更名称> --task <编号> --action skip`
-6. 所有任务完成后，进入阶段4（verify）
+3. **编码前**：使用 ripgrep 了解现有代码结构
+4. **编码中**：遵循 TDD，每完成一个小功能点后做防跑偏检查
+5. **编码后**：记录发现到 `{name}-progress.md`
+6. **为任务创建子 Agent 进行 TDD 开发**（详见下方子 Agent 规则）
+7. 完成任务：`python scripts/execute.py --name <变更名称> --task <编号> --action done`
+8. 跳过任务：`python scripts/execute.py --name <变更名称> --task <编号> --action skip`
+9. 所有任务完成后，进入阶段4（测试验证）
 
 **规则：**
 - **遇到问题及时反馈**：不要自己埋头解决，第一时间向用户报告问题
@@ -283,8 +341,9 @@ writing-proposal → review-proposal 循环 → [用户批准] → 阶段2
 - 遇到 bug 先修复，不要绕过
 - **TDD 循环记录**：每个功能点记录红/绿/重构循环次数
 - **测试通过才能提交**：未通过测试的功能点不能标记为完成
+- **防跑偏**：发现新问题先记录，不在本任务处理
 
-### 阶段4：verify（验证）
+### 阶段4：测试验证（Testing & Verification）
 **时机：** 编码完成，需要验证结果。
 
 > **验证与调试**：参考 [debugging-and-verification 子技能](./debugging-and-verification/SKILL.md)
@@ -297,8 +356,9 @@ writing-proposal → review-proposal 循环 → [用户批准] → 阶段2
 3. **使用子 Agent 进行验证**（详见下方子 Agent 规则）
 4. 发现问题 → 进入调试流程 → 修复 → 重新测试
 5. 验证通过后，运行 `python scripts/verify.py --name <变更名称> --action done`
-6. 更新 STATUS.md 中的验证结果
-7. 进入阶段5（archive）
+6. 更新 {name}-progress.md 中的验证结果
+7. **提交用户批准**：向用户展示验证结果，请求批准
+8. 批准后进入阶段5（需求归档）
 
 **系统集成测试要点：**
 - 模块间接口调用是否正确
@@ -311,7 +371,7 @@ writing-proposal → review-proposal 循环 → [用户批准] → 阶段2
 - 必须进行系统集成测试，不能仅做单元测试
 - 发现问题必须修复后才能标记完成
 - **调试流程**：遇到问题先根因调查（4个阶段），再修复
-- 所有验证结果记录到 STATUS.md
+- 所有验证结果记录到 {name}-progress.md
 - **Git 提交**：每个子任务完成时提交，验证通过后提交
 
 **验证通过标准：**
@@ -320,8 +380,12 @@ writing-proposal → review-proposal 循环 → [用户批准] → 阶段2
 - 无法覆盖的代码需用户批准
 - 集成测试通过
 
-### 阶段5：archive（归档）
-**时机：** 验证已通过，准备归档。
+### 阶段5：需求归档（Archiving）
+**时机：** 阶段4测试验证已通过，且用户已批准。
+
+**前提条件：**
+- ✅ 阶段4验证通过
+- ✅ **用户批准**（必须）
 
 **操作：**
 1. 运行 `python scripts/archive.py --name <变更名称>`
@@ -329,12 +393,12 @@ writing-proposal → review-proposal 循环 → [用户批准] → 阶段2
    - 提交 Git（`git add . && git commit -m "chore: 完成变更 <name>"`）
    - 推送到远程仓库
    - 询问是否打标签（如需打标签，创建 `v<version>/<name>` 格式的标签）
-   - 将变更目录移动到 `docs/changes/archive/`
+   - 将变更目录移动到 `docs/vibe-coding/changes/archive/`
 
 **归档条件：**
 - ✅ 阶段4验证通过（测试充分、覆盖率100%、集成测试通过）
 - ✅ Git 已提交
-- ✅ STATUS.md 中阶段5状态已更新
+- ✅ {name}-progress.md 中阶段5状态已更新
 
 **Git 提交规则：**
 - 每个大阶段结束后提交一次
@@ -345,8 +409,8 @@ writing-proposal → review-proposal 循环 → [用户批准] → 阶段2
 - `v<version>/<变更名称>`（如 `v1.0/add-dark-mode`）
 
 **规则：**
-- 归档后的变更不可修改（需要则重新 propose）
-- 归档信息记录到 STATUS.md
+- 归档后的变更不可修改（需要则重新需求分析）
+- 归档信息记录到 {name}-progress.md
 
 ## 状态判断
 
@@ -354,25 +418,27 @@ writing-proposal → review-proposal 循环 → [用户批准] → 阶段2
 
 | 文件状态 | 当前阶段 | 下一步 |
 |----------|----------|--------|
-| `proposal.md` 不存在 | 阶段1：writing-proposal | 开始需求调研 |
-| `proposal.md` 存在，提案状态"Agent审查"为 ⏳ | 阶段1：review-proposal | 审查提案 |
-| `proposal.md` 审查通过，"用户批准"为 ⏳ | 阶段1：等待批准 | 请求用户批准 |
-| `proposal.md` 已批准 | 阶段2：plans | 运行 plans.py |
-| 阶段2完成，有未完成任务 | 阶段3：execute | 运行 execute.py |
-| 所有任务完成 | 阶段4：verify | 运行 verify.py |
-| `verification.md` 存在，目录不在 archive/ | 阶段5：archive | 运行 archive.py |
+| `{name}-design.md` 不存在 | 阶段1：writing-design | 开始需求调研 |
+| `{name}-design.md` 存在，设计状态"Agent审查"为 ⏳ | 阶段1：review-design | 审查设计 |
+| `{name}-design.md` 审查通过，"用户批准"为 ⏳ | 阶段1：等待批准 | 请求用户批准 |
+| `{name}-design.md` 已批准 | 阶段2：任务拆解 | 运行 plans.py |
+| 阶段2完成，有未完成任务 | 阶段3：代码执行 | 运行 execute.py |
+| 所有任务完成 | 阶段4：测试验证 | 运行 verify.py |
+| 验证通过，"用户批准"为 ⏳ | 阶段4：等待批准 | 请求用户批准 |
+| 用户已批准 | 阶段5：需求归档 | 运行 archive.py |
 
 ## 快速决策表
 
 | 你听到... | 阶段 | 操作 |
 |-----------|------|------|
-| "我想做 X" / "添加功能" / "实现 XX" | 1 | writing-proposal |
-| "提案写好了，帮我看看" | 1（子流程） | review-proposal |
-| "提案审查通过了" | 1（子流程） | 请求用户批准 |
-| "提案批准了" | 2 | plans |
-| "计划做好了，开始做" / "执行任务 N" | 3 | execute |
-| "做完了" / "应该没问题了" | 4 | verify |
-| "验证通过了" / "收尾吧" | 5 | archive |
+| "我想做 X" / "添加功能" / "实现 XX" | 1 | writing-design |
+| "设计写好了，帮我看看" | 1（子流程） | review-design |
+| "设计审查通过了" | 1（子流程） | 请求用户批准 |
+| "设计批准了" | 2 | 任务拆解 |
+| "计划做好了，开始做" / "执行任务 N" | 3 | 代码执行 |
+| "做完了" / "应该没问题了" | 4 | 测试验证 |
+| "验证通过了" | 4（等待批准） | 请求用户批准 |
+| "批准了" / "没问题，可以收尾" | 5 | 需求归档 |
 
 ## 规则
 
@@ -406,21 +472,32 @@ writing-proposal → review-proposal 循环 → [用户批准] → 阶段2
 vibe-coding/
 ├── SKILL.md                    ← 本文件（主入口路由器）
 ├── README.md                   ← 项目文档
-├── writing-proposal/           ← 阶段1子技能：需求调研
-├── review-proposal/            ← 阶段1子技能：提案审查
-├── test-driven-development/   ← 阶段3子技能：测试驱动开发
+├── initialize/                 ← 首次启动子技能：项目初始化
+├── writing-design/             ← 阶段1子技能：需求调研
+├── review-design/              ← 阶段1子技能：设计审查
+├── test-driven-development/    ← 阶段3子技能：测试驱动开发
 ├── debugging-and-verification/  ← 阶段4子技能：验证与调试
 ├── scripts/
-│   ├── propose.py              ← 阶段1：创建提案（由 writing-proposal 调用）
-│   ├── plans.py                ← 阶段2：制定计划
-│   ├── execute.py              ← 阶段3：执行任务
-│   ├── verify.py               ← 阶段4：验证结果
-│   └── archive.py              ← 阶段5：归档完成
-└── docs/changes/              ← 变更提案目录
-    ├── STATUS.md              ← 当前变更的阶段进度状态（查看进度）⭐
-    │                           包含：阶段历史、计划概述、任务清单、验证结果
-    ├── archive/                ← 已归档变更
-    └── {change-name}/          ← 单个变更
-        ├── proposal.md         ← 变更提案（含状态表）
-        └── verification.md     ← 验证结果（阶段4产出）
+│   ├── design.py              ← 阶段1：创建设计文档（由 writing-design 调用）
+│   ├── plans.py                ← 阶段2：任务拆解
+│   ├── execute.py              ← 阶段3：代码执行
+│   ├── verify.py               ← 阶段4：测试验证
+│   └── archive.py              ← 阶段5：需求归档
+└── docs/vibe-coding/changes/  ← 在途变更目录（由 vibe-coding 维护）
+    ├── {name}-progress.md      ← 当前变更的阶段进度状态
+    └── archive/                ← 已完成变更归档
+
+# 项目 docs/vibe-coding/ 目录（由 initialize 子技能创建维护）
+{项目目录}/
+└── docs/vibe-coding/
+    ├── {project-name}-design.md   ← 项目设计文档
+    ├── graphify/                  ← graphify 扫描文档
+    │   ├── report.md             ← 代码库结构报告
+    │   ├── modules.md            ← 模块依赖关系
+    │   ├── apis.md               ← API 接口列表
+    │   ├── data-flows.md         ← 数据流分析
+    │   └── tech-stack.md         ← 技术栈清单
+    └── changes/                   ← 在途变更目录
+        └── archive/              ← 已归档变更
 ```
+

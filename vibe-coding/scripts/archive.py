@@ -35,12 +35,12 @@ def find_project_root() -> Path:
 
 
 def get_changes_dir(script_dir: Path, custom_dir: Optional[str] = None) -> Path:
-    """获取 changes 目录路径（默认：项目根目录/docs/changes）"""
+    """获取 changes 目录路径（默认：项目根目录/docs/vibe-coding/changes）"""
     if custom_dir:
         return Path(custom_dir)
-    # 默认路径：{项目根目录}/docs/changes
+    # 默认路径：{项目根目录}/docs/vibe-coding/changes
     project_root = find_project_root()
-    return project_root / "docs" / "changes"
+    return project_root / "docs" / "vibe-coding" / "changes"
 
 
 def run_git_command(args: list, cwd: Optional[Path] = None) -> tuple:
@@ -140,17 +140,17 @@ def create_tag(name: str, project_root: Path) -> bool:
     return True
 
 
-def check_archive_conditions(status_file: Path) -> tuple:
+def check_archive_conditions(progress_file: Path) -> tuple:
     """检查归档条件"""
-    if not status_file.exists():
-        return False, "STATUS.md 不存在"
+    if not progress_file.exists():
+        return False, "{name}-progress.md 不存在"
     
-    status_content = status_file.read_text(encoding="utf-8")
+    progress_content = progress_file.read_text(encoding="utf-8")
     
     # 检查阶段4是否完成
-    if "| ✅ 已完成 |" not in status_content and "| 已完成 |" not in status_content:
+    if "| ✅ 已完成 |" not in progress_content and "| 已完成 |" not in progress_content:
         # 检查是否有待完成的验证
-        if "🔄 进行中" in status_content:
+        if "🔄 进行中" in progress_content:
             return False, "阶段4验证尚未完成"
     
     return True, ""
@@ -160,7 +160,7 @@ def archive_change(name: str, changes_dir: Path) -> int:
     """归档已完成变更"""
     change_dir = changes_dir / name
     archive_dir = changes_dir / "archive"
-    status_file = changes_dir / "STATUS.md"
+    progress_file = changes_dir / f"{name}-progress.md"
 
     # 检查变更是否存在
     if not change_dir.exists():
@@ -169,7 +169,7 @@ def archive_change(name: str, changes_dir: Path) -> int:
         return 1
 
     # 检查归档条件
-    can_archive, reason = check_archive_conditions(status_file)
+    can_archive, reason = check_archive_conditions(progress_file)
     if not can_archive:
         print(f"⚠️  归档条件不满足：{reason}")
         response = input("是否仍要归档？(y/N): ").strip().lower()
@@ -216,7 +216,7 @@ def archive_change(name: str, changes_dir: Path) -> int:
     print(f"   文件：{', '.join(sorted(file_names))}")
     print()
     print(f"🎉 工作流完成！可以开始新的变更：")
-    print(f"   python scripts/propose.py --name <新变更名称>")
+    print(f"   python scripts/design.py --name <新变更名称>")
 
     return 0
 
@@ -238,7 +238,7 @@ def list_archived(changes_dir: Path) -> int:
     print(f"📂 已归档变更（{len(archived)} 个）：")
     for d in sorted(archived):
         # 尝试读取验证结论
-        status = d / "STATUS.md"
+        progress_file = d / f"{d.name}-progress.md"
         conclusion = ""
         if status.exists():
             content = status.read_text(encoding="utf-8")

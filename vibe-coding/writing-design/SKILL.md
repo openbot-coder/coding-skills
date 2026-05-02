@@ -1,13 +1,13 @@
 ---
-name: writing-proposal
-description: "在创建提案之前必须使用 - 探索用户意图、需求和设计方案。通过自然的协作对话，帮助将想法转化为完整的提案内容。"
+name: writing-design
+description: "在创建设计文档之前必须使用 - 探索用户意图、需求和设计方案。通过自然的协作对话，帮助将想法转化为完整的设计内容。"
 ---
 
 # 需求调研与访谈
 
 ## 概述：
 
-通过自然的协作对话，帮助将想法转化为完整的提案内容。
+通过自然的协作对话，帮助将想法转化为完整的设计内容。
 
 首先了解当前项目上下文，然后逐一提问来细化想法。一旦理解了需求，展示解决方案并获得用户批准。
 
@@ -17,9 +17,9 @@ description: "在创建提案之前必须使用 - 探索用户意图、需求和
 
 ## 需求访谈记录
 
-**重要：** 所有需求调研必须记录在 `docs/changes/{变更名称}/proposal.md` 文档的"背景"和"需求要点"部分，便于后续追踪。
+**重要：** 所有需求调研必须记录在 `docs/vibe-coding/changes/{变更名称}/{变更名称}-design.md` 文档的"背景"和"需求要点"部分，便于后续追踪。
 
-### proposal.md 背景部分模板：
+### {name}-design.md 背景部分模板：
 
 ```markdown
 ## 背景
@@ -41,8 +41,8 @@ description: "在创建提案之前必须使用 - 探索用户意图、需求和
 
 ### 追加规则
 
-1. **首次访谈**：先运行 `python scripts/propose.py --name <变更名称>` 创建目录
-2. **访谈记录**：在 `proposal.md` 的背景部分追加访谈内容
+1. **首次访谈**：先运行 `python scripts/design.py --name <变更名称>` 创建目录
+2. **访谈记录**：在 `{name}-design.md` 的背景部分追加访谈内容
 3. **方案更新**：在设计方案部分更新版本
 
 ## 检查清单
@@ -53,38 +53,38 @@ description: "在创建提案之前必须使用 - 探索用户意图、需求和
 2. **提出澄清问题** — 一次一个，理解目的/约束/成功标准
 3. **提出 2-3 种方案** — 包含权衡和你的推荐
 4. **展示解决方案** — 按复杂度分节展示，每节后获得用户批准
-5. **记录访谈内容** — 将需求要点和设计方案记录到 `proposal.md` 的背景部分
-6. **过渡到提案** — 完成 writing-proposal，准备进入 propose 阶段
+5. **记录访谈内容** — 将需求要点和设计方案记录到 `{name}-design.md` 的背景部分
+6. **过渡到审查** — 完成 writing-design，准备进入 review-design 阶段
 
 ## 流程图
 
 ```dot
-digraph writing-proposal {
+digraph writing-design {
     "探索项目上下文" [shape=box];
     "提出澄清问题" [shape=box];
     "提出2-3种方案" [shape=box];
     "展示解决方案各节" [shape=box];
     "用户批准方案？" [shape=diamond];
-    "记录到 proposal.md" [shape=box];
-    "过渡到 propose 阶段" [shape=doublecircle];
+    "记录到 {name}-design.md" [shape=box];
+    "过渡到审查阶段" [shape=doublecircle];
 
     "探索项目上下文" -> "提出澄清问题";
     "提出澄清问题" -> "提出2-3种方案";
     "提出2-3种方案" -> "展示解决方案各节";
     "展示解决方案各节" -> "用户批准方案？";
     "用户批准方案？" -> "展示解决方案各节" [label="否，修改"];
-    "用户批准方案？" -> "记录到 proposal.md" [label="是"];
-    "记录到 proposal.md" -> "过渡到 propose 阶段";
+    "用户批准方案？" -> "记录到 {name}-design.md" [label="是"];
+    "记录到 {name}-design.md" -> "过渡到审查阶段";
 }
 ```
 
-**终止状态是完成 writing-proposal，准备进入 propose 阶段。** 不要跳到实现阶段。
+**终止状态是完成 writing-design，准备进入 review-design 阶段。** 不要跳到实现阶段。
 
 ## 流程
 
 **理解需求：**
 - 首先检查当前项目状态（文件、文档、最近提交）
-- 检查是否存在 `proposal.md`，如果有则在背景部分追加新内容
+- 检查是否存在 `{name}-design.md`，如果有则在背景部分追加新内容
 - 一次问一个问题来细化想法
 - 尽可能使用选择题，但开放式也可以
 - 每条消息只问一个问题——如果一个话题需要更多探索，拆分成多个问题
@@ -103,7 +103,7 @@ digraph writing-proposal {
 - 如果有不明白的地方，随时回去澄清
 
 **记录访谈：**
-- 将需求要点记录到 `proposal.md` 的"需求要点"部分
+- 将需求要点记录到 `{name}-design.md` 的"需求要点"部分
 - 将确认的设计方案记录到"确认的设计方案"部分
 
 ## 关键原则
@@ -118,14 +118,14 @@ digraph writing-proposal {
 
 ## 与 vibe-coding 的衔接
 
-writing-proposal 完成后，进入 **propose 阶段**：
+writing-design 完成后，进入 **需求分析阶段**：
 
 ```
-writing-proposal → propose → review-proposal → plans → execute → verify → archive
+writing-design → 需求分析 → review-design → 任务拆解 → 代码执行 → 测试验证 → 需求归档
 ```
 
-**propose 阶段操作：**
-1. 运行 `python scripts/propose.py --name <变更名称>` 创建提案目录
-2. 将 writing-proposal 记录的需求要点填入 `proposal.md`
-3. 补充目标、成功标准、范围等提案内容
-4. 确认提案完整后，进入 review-proposal 阶段
+**需求分析阶段操作：**
+1. 运行 `python scripts/design.py --name <变更名称>` 创建设计目录
+2. 将 writing-design 记录的需求要点填入 `{name}-design.md`
+3. 补充目标、成功标准、范围等设计内容
+4. 确认设计文档完整后，进入 review-design 阶段
