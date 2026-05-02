@@ -8,6 +8,8 @@
     - 基于设计文档更新 {name}-progress.md 中的阶段2内容
     - 不再生成单独的 plans.md 和 tasks.md 文件
     - 阶段完成时提交 Git
+
+参考：./task-breakdown/SKILL.md - 任务拆解子技能
 """
 
 import argparse
