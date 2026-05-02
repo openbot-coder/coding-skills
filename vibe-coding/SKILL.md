@@ -1,5 +1,5 @@
 ---
-version: 0.2.0
+version: 0.5.0
 name: vibe-coding
 description: "轻量级 AI 编程技能。代码探索(write-design前) → 需求分析(writing-design + review-design) → 任务拆解 → 代码执行 → 测试验证 → 需求归档。"
 ---
