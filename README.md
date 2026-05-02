@@ -102,12 +102,7 @@ python scripts/archive.py --name add-dark-mode
 coding-skills/
 ├── SKILL.md                    # 主入口：生命周期路由器
 ├── README.md                   # 项目文档
-├── scripts/
-│   ├── design.py              # 阶段1：创建设计文档
-│   ├── plans.py               # 阶段2：任务拆解
-│   ├── execute.py             # 阶段3：代码执行
-│   ├── verify.py              # 阶段4：测试验证
-│   └── archive.py             # 阶段5：需求归档
+├── code-exploration/           # 代码探索子技能：修改前必须先理解代码
 ├── initialize/                 # 项目初始化子技能
 ├── writing-design/             # 需求调研子技能
 ├── review-design/              # 设计审查子技能

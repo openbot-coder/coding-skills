@@ -1,7 +1,7 @@
 ---
 version: 0.2.0
 name: vibe-coding
-description: "轻量级 AI 编程技能。五阶段工作流：需求分析（writing-design + review-design 循环 + 用户批准）→ 任务拆解 → 代码执行 → 测试验证 → 需求归档。"
+description: "轻量级 AI 编程技能。代码探索(write-design前) → 需求分析(writing-design + review-design) → 任务拆解 → 代码执行 → 测试验证 → 需求归档。"
 ---
 
 # Vibe Coding — 轻量级开发工作流
