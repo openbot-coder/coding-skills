@@ -1,4 +1,5 @@
 ---
+version: 0.1.0
 name: debugging-and-verification
 description: 阶段4验证与调试：验证已完成任务的正确性，并在遇到问题时进行系统化调试
 ---
