@@ -6,9 +6,10 @@
     python scripts/archive.py --list               # 列出已归档变更
 
 功能：
-    - 提交 Git
+    - 提交 Git 到 develop 分支
     - 推送到远程仓库
     - 询问是否打标签
+    - 创建 PR 将 develop 合并到 main
     - 移动变更目录到 archive/
 """
 
@@ -59,54 +60,72 @@ def run_git_command(args: list, cwd: Optional[Path] = None) -> tuple:
         return False, "", str(e)
 
 
+def ensure_on_develop_branch(project_root: Path) -> bool:
+    """确保当前在 develop 分支"""
+    success, current_branch, _ = run_git_command(["git", "branch", "--show-current"], project_root)
+    if current_branch != "develop":
+        print(f"⚠️  当前不在 develop 分支（当前：{current_branch}）")
+        print(f"   请切换到 develop 分支后再归档")
+        return False
+    return True
+
+
 def git_commit(name: str, changes_dir: Path) -> bool:
-    """提交 Git"""
+    """提交 Git 到 develop 分支"""
     project_root = changes_dir.parent.parent
-    
+
+    # 确保在 develop 分支
+    if not ensure_on_develop_branch(project_root):
+        return False
+
     # 检查是否有 Git 仓库
     success, _, _ = run_git_command(["git", "rev-parse", "--git-dir"], project_root)
     if not success:
         print("⚠️  当前目录不是 Git 仓库，跳过 Git 提交")
         return False
-    
+
     # 检查是否有更改
     success, stdout, _ = run_git_command(["git", "status", "--porcelain"], project_root)
     if not stdout:
         print("📝 没有需要提交的更改")
         return False
-    
+
     # 添加所有更改
     success, _, stderr = run_git_command(["git", "add", "."], project_root)
     if not success:
         print(f"❌ git add 失败：{stderr}")
         return False
-    
-    # 提交
+
+    # 提交到 develop 分支
     commit_message = f"chore: 完成变更 {name}"
     success, _, stderr = run_git_command(["git", "commit", "-m", commit_message], project_root)
     if not success:
         print(f"❌ git commit 失败：{stderr}")
         return False
-    
-    print(f"✅ Git 已提交：{commit_message}")
+
+    print(f"✅ Git 已提交到 develop：{commit_message}")
     return True
 
 
 def git_push(project_root: Path) -> bool:
-    """推送到远程仓库"""
+    """推送到远程仓库（develop 分支）"""
+    # 确保在 develop 分支
+    if not ensure_on_develop_branch(project_root):
+        return False
+
     # 检查远程仓库
     success, stdout, _ = run_git_command(["git", "remote"], project_root)
     if not stdout:
         print("⚠️  没有远程仓库，跳过推送")
         return False
-    
-    # 推送
-    success, _, stderr = run_git_command(["git", "push"], project_root)
+
+    # 推送到远程（develop 分支）
+    success, _, stderr = run_git_command(["git", "push", "-u", "origin", "develop"], project_root)
     if not success:
         print(f"⚠️  git push 失败：{stderr}")
         return False
-    
-    print("✅ 已推送到远程仓库")
+
+    print("✅ 已推送到远程仓库（develop 分支）")
     return True
 
 
@@ -114,45 +133,94 @@ def create_tag(name: str, project_root: Path) -> bool:
     """创建标签"""
     # 生成默认标签名
     default_tag = f"v1.0/{name}"
-    
+
     print()
     response = input(f"是否需要打标签？(直接回车使用默认格式 v1.0/{name}，输入 n 跳过): ").strip()
-    
+
     if response.lower() == 'n':
         print("跳过打标签")
         return False
-    
+
     tag_name = response if response else default_tag
-    
+
     # 创建标签
     success, _, stderr = run_git_command(["git", "tag", "-a", tag_name, "-m", f"Release {tag_name}"], project_root)
     if not success:
         print(f"⚠️  创建标签失败：{stderr}")
         return False
-    
+
     # 推送标签
     success, _, stderr = run_git_command(["git", "push", "origin", tag_name], project_root)
     if not success:
         print(f"⚠️  推送标签失败：{stderr}")
         return False
-    
+
     print(f"✅ 已创建并推送标签：{tag_name}")
     return True
+
+
+def create_pr_to_main(project_root: Path) -> bool:
+    """创建 PR 将 develop 分支合并到 main 分支"""
+    # 检查 main 分支是否存在
+    success, _, _ = run_git_command(["git", "rev-parse", "--verify", "main"], project_root)
+    if not success:
+        print("⚠️  main 分支不存在，跳过 PR 创建")
+        print("   请先创建 main 分支或手动合并")
+        return False
+
+    # 检查远程仓库
+    success, stdout, _ = run_git_command(["git", "remote"], project_root)
+    if not stdout:
+        print("⚠️  没有远程仓库，跳过 PR 创建")
+        return False
+
+    print()
+    print("=" * 60)
+    print("PR 创建")
+    print("=" * 60)
+    print("是否创建 PR 将 develop 合并到 main？")
+    print()
+    response = input("输入 y 创建 PR，其他跳过: ").strip().lower()
+
+    if response != 'y':
+        print("跳过 PR 创建")
+        return False
+
+    # 使用 gh CLI 创建 PR（如果可用）
+    pr_title = input("PR 标题（直接回车使用默认）: ").strip()
+    if not pr_title:
+        pr_title = "Merge develop to main"
+
+    pr_body = input("PR 描述（直接回车使用默认）: ").strip()
+    if not pr_body:
+        pr_body = "归档完成，将 develop 分支合并到 main 分支"
+
+    success, _, stderr = run_git_command(
+        ["gh", "pr", "create", "--base", "main", "--head", "develop", "--title", pr_title, "--body", pr_body],
+        project_root
+    )
+    if success:
+        print("✅ PR 创建成功")
+        return True
+    else:
+        print("⚠️  gh CLI 不可用或 PR 创建失败，请手动创建 PR")
+        print("   命令：gh pr create --base main --head develop")
+        return False
 
 
 def check_archive_conditions(progress_file: Path) -> tuple:
     """检查归档条件"""
     if not progress_file.exists():
         return False, "{name}-progress.md 不存在"
-    
+
     progress_content = progress_file.read_text(encoding="utf-8")
-    
+
     # 检查阶段4是否完成
     if "| ✅ 已完成 |" not in progress_content and "| 已完成 |" not in progress_content:
         # 检查是否有待完成的验证
         if "🔄 进行中" in progress_content:
             return False, "阶段4验证尚未完成"
-    
+
     return True, ""
 
 
@@ -178,17 +246,20 @@ def archive_change(name: str, changes_dir: Path) -> int:
 
     project_root = changes_dir.parent.parent
 
-    # Git 提交
+    # Git 提交到 develop
     print("=" * 60)
-    print("Git 操作")
+    print("Git 操作（提交到 develop 分支）")
     print("=" * 60)
     git_commit(name, changes_dir)
-    
+
     # 推送到远程
     git_push(project_root)
-    
+
     # 询问是否打标签
     create_tag(name, project_root)
+
+    # 创建 PR 将 develop 合并到 main
+    create_pr_to_main(project_root)
 
     # 创建 archive 目录
     archive_dir.mkdir(parents=True, exist_ok=True)
