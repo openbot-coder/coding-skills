@@ -13,6 +13,34 @@ description: "代码探索技能 - 在修改代码前必须先理解代码库结
 
 参考 [graphify](https://github.com/safishamsi/graphify) 的设计理念，本技能支持将代码库转换为知识图谱，并生成代码探索报告。
 
+## 探索前检查
+
+在开始代码探索之前，先检查 graphify 是否已安装：
+
+```bash
+# 检查 graphify 是否已安装
+if ! command -v graphify &> /dev/null; then
+    echo "错误: graphify 未安装"
+    echo "请运行以下命令之一安装 graphify:"
+    echo "1. uv tool install graphifyy && graphify install"
+    echo "2. pipx install graphifyy && graphify install"
+    echo "3. pip install graphifyy && graphify install"
+    exit 1
+fi
+```
+
+**PowerShell 检查命令:**
+```powershell
+if (-not (Get-Command "graphify" -ErrorAction SilentlyContinue)) {
+    Write-Host "错误: graphify 未安装" -ForegroundColor Red
+    Write-Host "请运行以下命令之一安装 graphify:"
+    Write-Host "1. uv tool install graphifyy; graphify install"
+    Write-Host "2. pipx install graphifyy; graphify install"
+    Write-Host "3. pip install graphifyy; graphify install"
+    exit 1
+}
+```
+
 ## 探索时机
 
 以下情况必须执行代码探索：
