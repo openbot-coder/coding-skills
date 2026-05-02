@@ -1,10 +1,10 @@
 ---
 version: 1.0
-name: test-driven-development
-description: "vibe-coding 阶段3子技能：测试驱动开发。在实现任何功能或修复 bug 时使用，在编写实现代码之前。"
+name: tdd-unit-development
+description: "TDD 测试驱动单元开发 - vibe-coding 阶段3子技能。专门用于单元级别的测试驱动开发，避免与其他开发技能冲突。每个单元开发完成并测试通过、覆盖率达标后才能提交。"
 ---
 
-# TDD — 测试驱动开发
+# TDD — 测试驱动单元开发
 
 ## 概述
 

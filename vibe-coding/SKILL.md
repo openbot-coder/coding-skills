@@ -334,7 +334,7 @@ writing-design → review-design 循环 → [用户批准] → 阶段2
 
 **时机：** 计划已定，任务需要实施。
 
-> **采用 TDD 模式**：参考 [test-driven-development 子技能](./test-driven-development/SKILL.md)
+> **采用 TDD 模式**：参考 [tdd-unit-development 子技能](./test-driven-development/SKILL.md)
 
 **TDD 铁律：**
 
@@ -543,7 +543,7 @@ vibe-coding/
 ├── initialize/                 ← 首次启动子技能：项目初始化
 ├── writing-design/             ← 阶段1子技能：需求调研
 ├── review-design/              ← 阶段1子技能：设计审查
-├── test-driven-development/    ← 阶段3子技能：测试驱动开发
+├── test-driven-development/    ← 阶段3子技能：TDD 测试驱动单元开发
 ├── debugging-and-verification/  ← 阶段4子技能：验证与调试
 ├── scripts/
 │   ├── design.py              ← 阶段1：创建设计文档（由 writing-design 调用）
