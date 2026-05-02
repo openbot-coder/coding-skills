@@ -38,6 +38,16 @@ def run_git_command(args: list, cwd: Optional[Path] = None) -> tuple:
         return False, "", str(e)
 
 
+def ensure_on_develop_branch(project_root: Path) -> bool:
+    """确保当前在 develop 分支"""
+    success, current_branch, _ = run_git_command(["git", "branch", "--show-current"], project_root)
+    if current_branch != "develop":
+        print(f"⚠️  当前不在 develop 分支（当前：{current_branch}）")
+        print(f"   请切换到 develop 分支后再验证")
+        return False
+    return True
+
+
 def find_project_root() -> Path:
     """从当前工作目录向上查找项目根目录（包含 .git 或 pyproject.toml）"""
     cwd = Path.cwd()
@@ -343,9 +353,13 @@ def complete_verification(name: str, changes_dir: Path) -> int:
 
 
 def git_commit(name: str, changes_dir: Path) -> bool:
-    """大阶段完成时提交 Git"""
+    """大阶段完成时提交 Git 到 develop 分支"""
     project_root = changes_dir.parent.parent
-    
+
+    # 确保在 develop 分支
+    if not ensure_on_develop_branch(project_root):
+        return False
+
     # 检查是否有 Git 仓库
     success, _, _ = run_git_command(["git", "rev-parse", "--git-dir"], project_root)
     if not success:
@@ -371,7 +385,7 @@ def git_commit(name: str, changes_dir: Path) -> bool:
         print(f"⚠️  git commit 失败：{stderr}")
         return False
     
-    print(f"✅ Git 已提交：{commit_message}")
+    print(f"✅ Git 已提交到 develop：{commit_message}")
     return True
 
 

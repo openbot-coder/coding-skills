@@ -60,9 +60,23 @@ def run_git_command(args: list, cwd: Optional[Path] = None) -> tuple:
         return False, "", str(e)
 
 
+def ensure_on_develop_branch(project_root: Path) -> bool:
+    """确保当前在 develop 分支"""
+    success, current_branch, _ = run_git_command(["git", "branch", "--show-current"], project_root)
+    if current_branch != "develop":
+        print(f"⚠️  当前不在 develop 分支（当前：{current_branch}）")
+        print(f"   请切换到 develop 分支后再进行开发")
+        return False
+    return True
+
+
 def git_commit_on_complete(task_id: str, task_name: str, changes_dir: Path) -> bool:
-    """子任务完成时自动提交 Git"""
+    """子任务完成时自动提交 Git 到 develop 分支"""
     project_root = changes_dir.parent.parent
+
+    # 确保在 develop 分支
+    if not ensure_on_develop_branch(project_root):
+        return False
     
     # 检查是否有 Git 仓库
     success, _, _ = run_git_command(["git", "rev-parse", "--git-dir"], project_root)
@@ -89,7 +103,7 @@ def git_commit_on_complete(task_id: str, task_name: str, changes_dir: Path) -> b
         print(f"⚠️  git commit 失败：{stderr}")
         return False
     
-    print(f"✅ Git 已提交：{commit_message}")
+    print(f"✅ Git 已提交到 develop：{commit_message}")
     return True
 
 
@@ -314,8 +328,9 @@ def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
         print()
         print(f"🎉 所有任务处理完毕！({done_count}/{total} 完成)")
         print()
-        print(f"📌 大阶段完成，请提交 Git：")
+        print(f"📌 大阶段完成，请提交 Git 到 develop：")
         print(f"   git add . && git commit -m \"chore: 完成阶段3 代码执行 {name}\"")
+        print(f"   git push origin develop")
         print()
         print(f"   下一步：python scripts/verify.py --name {name}")
 

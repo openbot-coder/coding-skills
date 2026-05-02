@@ -135,8 +135,8 @@ coding-skills/
 **新功能：**
 - 重构为单一 vibe-coding 轻量级 5 阶段工作流
 - 参考 OpenSpec 设计理念：`需求分析 → 任务拆解 → 代码执行 → 测试验证 → 需求归档`
-- 提供 5 个 Python 脚本（design.py、plans.py、execute.py、verify.py、archive.py）
-- 包含 5 个子技能：initialize、writing-design、review-design、test-driven-development、debugging-and-verification
+- 新增 `code-exploration` 代码探索子技能：修改代码前必须先理解代码库
+- 包含 6 个子技能：code-exploration、initialize、writing-design、review-design、test-driven-development、debugging-and-verification
 
 **特点：**
 - **零依赖**：仅使用 Python 标准库
