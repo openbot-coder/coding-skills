@@ -95,10 +95,10 @@ def read_design(change_dir: Path, name: str) -> str:
 
 def extract_design_summary(design_content: str) -> str:
     """从设计中提取目标作为提示"""
-    if not proposal_content:
+    if not design_content:
         return ""
     
-    lines = proposal_content.strip().split("\n")
+    lines = design_content.strip().split("\n")
     goal_hint = []
     in_goal = False
     

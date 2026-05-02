@@ -103,12 +103,64 @@ coding-skills/
 ├── SKILL.md                    # 主入口：生命周期路由器
 ├── README.md                   # 项目文档
 ├── code-exploration/           # 代码探索子技能：修改前必须先理解代码
+│   └── SKILL.md                # 代码探索指南与知识图谱分析
 ├── initialize/                 # 项目初始化子技能
 ├── writing-design/             # 需求调研子技能
 ├── review-design/              # 设计审查子技能
 ├── test-driven-development/    # TDD 子技能
 └── debugging-and-verification/  # 验证调试子技能
 ```
+
+## 子技能说明
+
+### code-exploration - 代码探索
+
+**核心原则：** 修改代码前必须先理解代码库。
+
+**功能：**
+- 系统化探索项目结构、模块依赖、关键函数
+- 使用 graphify 生成知识图谱
+- 生成代码探索报告（`docs/{项目名}-{version}-exploration/`）
+- 支持多种编程语言（Python、JavaScript/TypeScript、Go、Rust 等）
+
+**使用时机：**
+- 开始新任务时
+- 修改陌生模块或文件时
+- 重构现有代码时
+- 修复 bug 时
+- 进入 review-design 之前
+
+**输出目录：**
+```
+docs/{项目名}-{version}-exploration/
+├── {项目名}-exploration.md    # 代码探索报告
+├── graphify-out/              # 知识图谱输出
+│   ├── graph.html             # 交互式图谱
+│   ├── graph.json             # 持久化图数据
+│   └── GRAPH_REPORT.md        # 图谱分析报告
+└── modules/                   # 模块详细分析
+    └── data-flows.md          # 数据流分析
+```
+
+### initialize - 项目初始化
+
+初始化新项目环境，设置 Git 仓库，创建基础目录结构。
+
+### writing-design - 需求调研
+
+将用户需求转化为设计文档，定义目标、背景和成功标准。
+
+### review-design - 设计审查
+
+审查设计文档的完整性和可行性，确保设计合理。
+
+### test-driven-development - TDD
+
+测试驱动开发，先写测试再实现功能。
+
+### debugging-and-verification - 验证调试
+
+验证已完成任务的正确性，系统化调试问题。
 
 ## AI 集成
 
@@ -129,6 +181,21 @@ coding-skills/
 - [OpenSpec](https://github.com/Fission-AI/OpenSpec) — 轻量级 AI 规格文档框架
 
 ## Changelog
+
+### v0.5.0 (2026-05-02)
+
+**新功能：**
+- 新增 `code-exploration` 代码探索子技能，包含完整的知识图谱分析功能
+- code-exploration 支持使用 graphify 生成交互式知识图谱
+- 代码探索报告输出到 `docs/{项目名}-{version}-exploration/` 目录
+- 所有子技能添加 version 字段（v0.1.0）
+
+**改进：**
+- 完善 README.md，添加各子技能详细说明
+- Git 分支规则：所有提交到 develop 分支，通过 PR 合并到 main
+
+**Bug 修复：**
+- 修复 `plans.py` 中 `extract_design_summary` 函数的变量名错误
 
 ### v0.4.0 (2026-05-02)
 
