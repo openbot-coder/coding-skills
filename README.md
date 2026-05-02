@@ -133,6 +133,44 @@ coding-skills/
 
 - [OpenSpec](https://github.com/Fission-AI/OpenSpec) — 轻量级 AI 规格文档框架
 
+## Changelog
+
+### v0.4.0 (2026-05-02)
+
+**新功能：**
+- 重构为单一 vibe-coding 轻量级 5 阶段工作流
+- 参考 OpenSpec 设计理念：`需求分析 → 任务拆解 → 代码执行 → 测试验证 → 需求归档`
+- 提供 5 个 Python 脚本（design.py、plans.py、execute.py、verify.py、archive.py）
+- 包含 5 个子技能：initialize、writing-design、review-design、test-driven-development、debugging-and-verification
+
+**特点：**
+- **零依赖**：仅使用 Python 标准库
+- **跨平台**：Windows、macOS、Linux
+- 强制用户批准门槛
+- 内置防跑偏检查机制
+
+### v0.3.0 (2026-04-28)
+
+**新功能：**
+- 新增阶段：PRD 与详细设计（阶段2）
+- 新增技能 `writing-prd-and-design`：将需求转化为 PRD 文档和详细设计文档
+- 优化工作流程：brainstorming → PRD与设计 → 实施计划 → 执行
+
+### v0.2.0 (2026-04-27)
+
+**新功能：**
+- 添加版本号 `version: 0.2.0` 到 SKILL.md
+- 添加 6 条工程原则（Hyrum's Law、Chesterton's Fence、测试金字塔、Beyoncé 规则、左移原则、二八定律）
+- 添加 8 条借口反驳表
+- 添加平台集成指南（Claude Code、Cursor、Windsurf、GitHub Copilot 等）
+
+### v0.1.0 (2026-04-26)
+
+- 初始版本发布
+- 完成开发生命周期 7 阶段技能体系
+- 包含 13 个工作流技能和 15 个辅助参考文件
+- 完善 README.md 项目文档
+
 ## License
 
 MIT
