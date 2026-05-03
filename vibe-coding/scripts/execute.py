@@ -287,34 +287,32 @@ def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
     task_info = next((t for t in tasks if t["id"] == task_id), None)
     task_name = task_info["name"] if task_info else f"任务{task_id}"
 
-    # TDD 合规检查
+    # TDD 合规检查：询问用户是否遵循了 TDD 流程
     print()
     print("=" * 60)
     print("📋 TDD 合规检查")
     print("=" * 60)
     print()
-    print("请确认以下条件已满足：")
+    print("请确认以下 TDD 流程已正确执行：")
     print()
     print("  🔴 红：是否先编写了失败的测试？")
     print("  🟢 绿：是否编写了最少代码使测试通过？")
     print("  🔵 重构：是否在绿色后进行了代码清理？")
     print("  📊 覆盖率：测试覆盖率是否达到 100%？")
-    print("         未覆盖代码是否有 # UNCOVERED: 标注？")
     print()
     
-    tdd_confirmed = input("确认已满足所有条件？(y/N): ").strip().lower()
+    tdd_confirmed = input("确认已遵循 TDD 流程？(y/N): ").strip().lower()
     if tdd_confirmed != 'y':
         print()
         print("❌ TDD 合规检查未通过")
-        print("   必须满足所有条件才能提交 Git")
+        print("   请先完成 TDD 流程再标记任务为完成")
         print()
-        print("📋 Git 提交条件：")
-        print("   1. 单元开发完成")
-        print("   2. 所有测试用例测试通过")
-        print("   3. 单元测试代码覆盖率达到 100%")
-        print("   4. 未能覆盖的代码已做出 # UNCOVERED: 标注")
+        print("📋 正确流程：")
+        print("   1. [红] 编写失败测试")
+        print("   2. [绿] 编写最少代码通过测试")
+        print("   3. [重构] 清理代码")
         print()
-        print("   参考：./test-driven-development/SKILL.md (TDD 测试驱动单元开发)")
+        print("   参考：./test-driven-development/SKILL.md")
         return 1
 
     updated = update_status_file(progress_file, task_id, "done")
