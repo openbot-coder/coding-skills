@@ -103,12 +103,10 @@ vibe-coding/
 │   └── archive.py              # 阶段5：需求归档
 └── docs/vibe-coding/         # 项目 vibe-coding 目录（运行 initialize 后创建）
     ├── {project-name}-design.md  # 项目设计文档
-    ├── graphify/              # graphify 扫描文档
-    │   ├── report.md         # 代码库结构
-    │   ├── modules.md        # 模块依赖
-    │   ├── apis.md           # API 接口
-    │   ├── data-flows.md     # 数据流
-    │   └── tech-stack.md     # 技术栈
+    ├── graphify-out/          # graphify 输出（由 graphify 命令生成）
+    │   ├── graph.html        # 交互式图谱
+    │   ├── GRAPH_REPORT.md  # 分析报告
+    │   └── graph.json       # 持久化图数据
     └── changes/              # 在途变更目录
         ├── archive/          # 已归档变更
         └── {name}/           # 单个变更

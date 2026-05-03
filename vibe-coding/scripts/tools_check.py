@@ -38,11 +38,10 @@ REQUIRED_CORE_TOOLS = {
 OPTIONAL_ANALYSIS_TOOLS = {
     "graphify": {
         "commands": [
-            ["npx", "graphify", "--version"],
-            ["npx", "graphify", "version"],
+            ["graphify", "--help"],
         ],
         "required": False,
-        "install_hint": "npx graphify install",
+        "install_hint": "uv tool install graphifyy && graphify install",
         "description": "代码库结构分析"
     },
     "sourcegraph": {
