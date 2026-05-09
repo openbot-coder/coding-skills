@@ -36,14 +36,13 @@ description: "技能构建器 - 帮助用户从零开始创建高质量的 Agent
 
 ### 阶段2：Archetype Selection（类型选择）
 
-| Archetype | 使用场景 | 示例 |
-|---|---|---|
-| **simple** | 无脚本的基础技能 | 快速参考、风格指南 |
-| **api-wrapper** | 包装外部 API | GitHub API、Stripe API |
-| **document-processor** | 处理文件格式 | PDF 提取器、Excel 分析器 |
-| **dev-workflow** | 自动化开发任务 | Git 工作流、项目脚手架 |
-| **research-synthesizer** | 收集和综合信息 | 竞争分析、文献综述 |
-| **code-exploration** | 代码库分析和理解 | 知识图谱生成、代码探索报告 |
+| Archetype | 使用场景 | 示例 | 参考文档 |
+|---|---|---|---|
+| **simple** | 无脚本的基础技能 | 快速参考、风格指南 | - |
+| **api-wrapper** | 包装外部 API | GitHub API、Stripe API | [`references/api-wrapper-guide.md`](references/api-wrapper-guide.md) |
+| **document-processor** | 处理文件格式 | PDF 提取器、Excel 分析器 | [`references/document-processor-guide.md`](references/document-processor-guide.md) |
+| **dev-workflow** | 自动化开发任务 | Git 工作流、项目脚手架 | [`references/dev-workflow-guide.md`](references/dev-workflow-guide.md) |
+| **research-synthesizer** | 收集和综合信息 | 竞争分析、文献综述 | [`references/research-synthesizer-guide.md`](references/research-synthesizer-guide.md) |
 
 ### 阶段3：目录结构
 
