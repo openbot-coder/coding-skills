@@ -1,40 +1,40 @@
-# Document Processor Skill Guide
+# 文档处理器技能指南
 
-## Overview
+## 概述
 
-Document processor skills handle specific file formats and provide operations like extraction, transformation, and analysis.
+文档处理器技能处理特定文件格式，并提供提取、转换和分析操作。
 
-## When to Use
+## 使用场景
 
-- Processing PDF documents
-- Analyzing Excel spreadsheets
-- Parsing CSV files
-- Converting document formats
-- Extracting text and metadata
+- 处理 PDF 文档
+- 分析 Excel 电子表格
+- 解析 CSV 文件
+- 转换文档格式
+- 提取文本和元数据
 
-## Directory Structure
+## 目录结构
 
 ```
 document-processor-skill/
 ├── SKILL.md
 ├── scripts/
-│   ├── parser.py           # Document parsing logic
-│   └── extractor.py        # Data extraction
+│   ├── parser.py           # 文档解析逻辑
+│   └── extractor.py        # 数据提取
 ├── references/
-│   └── format_spec.md      # Format specifications
+│   └── format_spec.md      # 格式规范
 └── assets/
-    └── templates/          # Output templates
+    └── templates/          # 输出模板
 ```
 
-## Frontmatter Template
+## Frontmatter 模板
 
 ```yaml
 ---
 name: pdf-processor
-description: "Extract text and tables from PDF files, fill forms, merge documents. Use when working with PDF documents or document extraction tasks."
+description: "从 PDF 文件中提取文本和表格，填写表单，合并文档。在处理 PDF 文档或文档提取任务时使用。"
 version: 1.0.0
 license: MIT
-compatibility: Requires PyPDF2 or pdfplumber
+compatibility: 需要 PyPDF2 或 pdfplumber
 metadata:
   author: dev-team
   category: document-processing
@@ -42,9 +42,9 @@ metadata:
 ---
 ```
 
-## Key Components
+## 核心组件
 
-### 1. Document Parser
+### 1. 文档解析器
 
 ```python
 # scripts/parser.py
@@ -70,64 +70,64 @@ class PDFProcessor:
         return tables
 ```
 
-### 2. Output Formats
+### 2. 输出格式
 
-- Text extraction
-- Table extraction (CSV, JSON)
-- Metadata extraction
-- Image extraction
-- Document conversion
+- 文本提取
+- 表格提取（CSV、JSON）
+- 元数据提取
+- 图像提取
+- 文档转换
 
-### 3. Processing Pipeline
+### 3. 处理流程
 
-1. **Input**: Accept file path or content
-2. **Parsing**: Extract structured data
-3. **Transformation**: Convert to desired format
-4. **Output**: Return or save results
+1. **输入**：接受文件路径或内容
+2. **解析**：提取结构化数据
+3. **转换**：转换为所需格式
+4. **输出**：返回或保存结果
 
-## Example Usage
+## 使用示例
 
 ```markdown
-# PDF Processor
+# PDF 处理器
 
-## Overview
+## 概述
 
-This skill extracts text and tables from PDF documents.
+此技能从 PDF 文档中提取文本和表格。
 
-## Features
+## 功能特性
 
-- Text extraction with layout preservation
-- Table extraction as CSV or JSON
-- Metadata extraction (author, date, pages)
-- Form field extraction
+- 保持布局的文本提取
+- 表格提取为 CSV 或 JSON
+- 元数据提取（作者、日期、页数）
+- 表单字段提取
 
-## Usage
+## 使用方法
 
 ```python
 from scripts.parser import PDFProcessor
 
-# Process PDF
+# 处理 PDF
 processor = PDFProcessor("document.pdf")
 
-# Extract text
+# 提取文本
 text = processor.extract_text()
 
-# Extract tables
+# 提取表格
 tables = processor.extract_tables()
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Memory Management**: Handle large files efficiently
-2. **Error Handling**: Validate file formats before processing
-3. **Output Options**: Support multiple output formats
-4. **Performance**: Optimize for large documents
-5. **Format Support**: Handle different PDF versions
+1. **内存管理**：高效处理大文件
+2. **错误处理**：处理前验证文件格式
+3. **输出选项**：支持多种输出格式
+4. **性能**：优化大型文档处理
+5. **格式支持**：处理不同版本的 PDF
 
-## Supported Formats
+## 支持的格式
 
-- PDF (via pdfplumber, PyPDF2)
-- DOCX (via python-docx)
-- XLSX (via pandas, openpyxl)
-- CSV (via csv module)
-- JSON (built-in)
+- PDF（通过 pdfplumber、PyPDF2）
+- DOCX（通过 python-docx）
+- XLSX（通过 pandas、openpyxl）
+- CSV（通过 csv 模块）
+- JSON（内置）

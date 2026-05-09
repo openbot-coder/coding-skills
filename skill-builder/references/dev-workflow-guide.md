@@ -1,40 +1,40 @@
-# Development Workflow Skill Guide
+# 开发工作流技能指南
 
-## Overview
+## 概述
 
-Dev workflow skills automate development tasks and enforce best practices throughout the software development lifecycle.
+开发工作流技能自动化开发任务，并在软件开发生命周期中强制执行最佳实践。
 
-## When to Use
+## 使用场景
 
-- Automating Git workflows
-- Project scaffolding
-- Code generation
-- Build and deployment automation
-- Testing and quality checks
+- 自动化 Git 工作流
+- 项目脚手架
+- 代码生成
+- 构建和部署自动化
+- 测试和质量检查
 
-## Directory Structure
+## 目录结构
 
 ```
 dev-workflow-skill/
 ├── SKILL.md
 ├── scripts/
-│   ├── workflow.py         # Workflow orchestration
-│   └── helpers.py          # Utility functions
+│   ├── workflow.py         # 工作流编排
+│   └── helpers.py          # 实用函数
 ├── references/
-│   └── standards.md        # Coding standards
+│   └── standards.md        # 编码标准
 └── assets/
-    └── templates/          # Project templates
+    └── templates/          # 项目模板
 ```
 
-## Frontmatter Template
+## Frontmatter 模板
 
 ```yaml
 ---
 name: git-workflow
-description: "Automate Git workflows including branching, merging, and pull request management. Use when managing Git repositories or implementing CI/CD pipelines."
+description: "自动化 Git 工作流，包括分支、合并和拉取请求管理。在管理 Git 仓库或实现 CI/CD 管道时使用。"
 version: 1.0.0
 license: MIT
-compatibility: Requires git CLI
+compatibility: 需要 git CLI
 metadata:
   author: dev-team
   category: development
@@ -42,9 +42,9 @@ metadata:
 ---
 ```
 
-## Key Components
+## 核心组件
 
-### 1. Workflow Orchestration
+### 1. 工作流编排
 
 ```python
 # scripts/workflow.py
@@ -63,46 +63,46 @@ class GitWorkflow:
         subprocess.run(["git", "push", "origin", branch])
 ```
 
-### 2. Workflow Templates
+### 2. 工作流模板
 
-- **Feature Branch**: Create → Develop → PR → Review → Merge
-- **Release Flow**: Branch → Test → Tag → Deploy
-- **Hotfix**: Create → Fix → Merge → Deploy
+- **功能分支**：创建 → 开发 → PR → 审核 → 合并
+- **发布流程**：分支 → 测试 → 标记 → 部署
+- **热修复**：创建 → 修复 → 合并 → 部署
 
-### 3. Automation Hooks
+### 3. 自动化钩子
 
-- Pre-commit hooks
-- Commit message validation
-- Branch naming conventions
-- CI/CD integration
+- 提交前钩子
+- 提交消息验证
+- 分支命名约定
+- CI/CD 集成
 
-## Example Usage
+## 使用示例
 
 ```markdown
-# Git Workflow
+# Git 工作流
 
-## Overview
+## 概述
 
-This skill automates common Git workflows and enforces best practices.
+此技能自动化常见的 Git 工作流并强制执行最佳实践。
 
-## Workflows
+## 工作流程
 
-### Feature Development
+### 功能开发
 
-1. Create feature branch: `feature/feature-name`
-2. Commit changes with conventional messages
-3. Push to remote
-4. Create pull request
-5. Review and merge
+1. 创建功能分支：`feature/feature-name`
+2. 使用规范消息提交更改
+3. 推送到远程
+4. 创建拉取请求
+5. 审核并合并
 
-### Release Process
+### 发布流程
 
-1. Create release branch: `release/v1.0.0`
-2. Run tests
-3. Tag version
-4. Deploy to production
+1. 创建发布分支：`release/v1.0.0`
+2. 运行测试
+3. 标记版本
+4. 部署到生产环境
 
-## Usage
+## 使用方法
 
 ```python
 from scripts.workflow import GitWorkflow
@@ -113,21 +113,21 @@ workflow.commit_with_message("feat: add new feature")
 workflow.push_to_remote()
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Branch Naming**: Use consistent conventions (feature/, bugfix/, release/)
-2. **Commit Messages**: Follow conventional commits
-3. **Code Reviews**: Require PR reviews before merging
-4. **Testing**: Run tests before merging
-5. **Documentation**: Update docs with changes
+1. **分支命名**：使用一致的约定（feature/、bugfix/、release/）
+2. **提交消息**：遵循规范提交格式
+3. **代码审核**：合并前需要 PR 审核
+4. **测试**：合并前运行测试
+5. **文档**：随更改更新文档
 
-## Branching Strategy
+## 分支策略
 
-| Branch Type | Pattern | Purpose |
+| 分支类型 | 模式 | 用途 |
 |-------------|---------|---------|
-| main | `main` | Production-ready code |
-| develop | `develop` | Integration branch |
-| feature | `feature/*` | New features |
-| bugfix | `bugfix/*` | Bug fixes |
-| release | `release/*` | Release preparation |
-| hotfix | `hotfix/*` | Urgent fixes |
+| main | `main` | 生产就绪代码 |
+| develop | `develop` | 集成分支 |
+| feature | `feature/*` | 新功能 |
+| bugfix | `bugfix/*` | 错误修复 |
+| release | `release/*` | 发布准备 |
+| hotfix | `hotfix/*` | 紧急修复 |

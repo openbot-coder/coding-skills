@@ -1,37 +1,37 @@
-# Research Synthesizer Skill Guide
+# 研究综合器技能指南
 
-## Overview
+## 概述
 
-Research synthesizer skills gather information from multiple sources, analyze it, and produce structured reports or summaries.
+研究综合器技能从多个来源收集信息，进行分析，并生成结构化报告或摘要。
 
-## When to Use
+## 使用场景
 
-- Competitive analysis
-- Literature reviews
-- Market research
-- Data aggregation
-- Information synthesis
+- 竞争分析
+- 文献综述
+- 市场研究
+- 数据聚合
+- 信息综合
 
-## Directory Structure
+## 目录结构
 
 ```
 research-synthesizer-skill/
 ├── SKILL.md
 ├── scripts/
-│   ├── researcher.py       # Research logic
-│   └── analyzer.py         # Analysis functions
+│   ├── researcher.py       # 研究逻辑
+│   └── analyzer.py         # 分析功能
 ├── references/
-│   └── sources.md          # Source documentation
+│   └── sources.md          # 来源文档
 └── assets/
-    └── templates/          # Report templates
+    └── templates/          # 报告模板
 ```
 
-## Frontmatter Template
+## Frontmatter 模板
 
 ```yaml
 ---
 name: competitive-analysis
-description: "Perform competitive analysis by gathering and synthesizing information about competitors. Use when researching market trends, competitor products, or industry landscape."
+description: "通过收集和综合竞争对手信息进行竞争分析。在研究市场趋势、竞争对手产品或行业格局时使用。"
 version: 1.0.0
 license: MIT
 metadata:
@@ -41,9 +41,9 @@ metadata:
 ---
 ```
 
-## Key Components
+## 核心组件
 
-### 1. Researcher Class
+### 1. 研究器类
 
 ```python
 # scripts/researcher.py
@@ -74,38 +74,38 @@ class Researcher:
         return findings
 ```
 
-### 2. Analysis Techniques
+### 2. 分析技术
 
-- **Content Extraction**: Extract key information from sources
-- **Sentiment Analysis**: Determine sentiment of text
-- **Topic Modeling**: Identify main topics
-- **Comparison**: Compare multiple sources
-- **Summarization**: Generate concise summaries
+- **内容提取**：从来源提取关键信息
+- **情感分析**：确定文本情感
+- **主题建模**：识别主要主题
+- **比较**：比较多个来源
+- **摘要**：生成简明摘要
 
-### 3. Output Formats
+### 3. 输出格式
 
-- Markdown reports
-- JSON data structures
-- Visual summaries
-- Comparative tables
+- Markdown 报告
+- JSON 数据结构
+- 可视化摘要
+- 比较表格
 
-## Example Usage
+## 使用示例
 
 ```markdown
-# Competitive Analysis
+# 竞争分析
 
-## Overview
+## 概述
 
-This skill gathers information about competitors and produces structured analysis reports.
+此技能收集竞争对手信息并生成结构化分析报告。
 
-## Research Process
+## 研究流程
 
-1. **Identify Sources**: List competitor websites, articles, reviews
-2. **Gather Information**: Fetch and parse content
-3. **Analyze**: Extract key metrics and insights
-4. **Synthesize**: Combine findings into report
+1. **确定来源**：列出竞争对手网站、文章、评论
+2. **收集信息**：获取并解析内容
+3. **分析**：提取关键指标和洞察
+4. **综合**：将发现整合到报告中
 
-## Usage
+## 使用方法
 
 ```python
 from scripts.researcher import Researcher
@@ -117,46 +117,46 @@ researcher.add_source("https://competitor2.com")
 findings = researcher.synthesize()
 ```
 
-## Best Practices
+## 最佳实践
 
-1. **Source Quality**: Use reputable sources
-2. **Diversity**: Gather from multiple perspectives
-3. **Citation**: Track sources for reference
-4. **Bias Awareness**: Consider source biases
-5. **Timeliness**: Use recent information
+1. **来源质量**：使用信誉良好的来源
+2. **多样性**：从多个角度收集信息
+3. **引用**：跟踪来源以供参考
+4. **偏见意识**：考虑来源偏见
+5. **时效性**：使用最新信息
 
-## Report Structure
+## 报告结构
 
 ```markdown
-# Competitive Analysis Report
+# 竞争分析报告
 
-## Executive Summary
+## 执行摘要
 
-Brief overview of findings...
+发现的简要概述...
 
-## Competitors
+## 竞争对手
 
-| Competitor | Strengths | Weaknesses |
+| 竞争对手 | 优势 | 劣势 |
 |------------|-----------|------------|
-| Competitor A | Feature X | Weak UI |
-| Competitor B | Low price | Limited features |
+| 竞争对手 A | 功能 X | 用户界面差 |
+| 竞争对手 B | 低价 | 功能有限 |
 
-## Key Findings
+## 关键发现
 
-1. Finding 1
-2. Finding 2
-3. Finding 3
+1. 发现 1
+2. 发现 2
+3. 发现 3
 
-## Recommendations
+## 建议
 
-Based on analysis...
+基于分析...
 ```
 
-## Information Sources
+## 信息来源
 
-- Company websites
-- Industry reports
-- News articles
-- Customer reviews
-- Social media
-- Technical documentation
+- 公司网站
+- 行业报告
+- 新闻文章
+- 客户评论
+- 社交媒体
+- 技术文档
