@@ -569,3 +569,9 @@ vibe-coding/
         └── archive/              ← 已归档变更
 ```
 
+## 参考资源
+
+- [`references/principles.md`](references/principles.md) - 开发原则详解
+- [`references/workflow-guide.md`](references/workflow-guide.md) - 五阶段工作流指南
+- [`references/branching-strategy.md`](references/branching-strategy.md) - Git 分支策略
+
