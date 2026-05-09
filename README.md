@@ -24,6 +24,7 @@
 | `code-exploration` | 代码探索 | 修改代码前先理解代码库 |
 | `vibe-coding` | AI编程工作流 | 五阶段开发流程 |
 | `scripts-coding` | 脚本编程规范 | 规范脚本开发流程 |
+| `skill-builder` | 技能构建器 | 创建和验证 Agent Skills |
 
 ## 项目结构
 
@@ -53,12 +54,18 @@ coding-skills/
 │   ├── test-driven-development/ # TDD子技能
 │   └── debugging-and-verification/ # 验证调试子技能
 
-└── scripts-coding/             # 脚本编程规范
-    ├── SKILL.md                # 技能定义
-    ├── templates/              # 脚本模板
-    │   └── python_script_template.py
-    └── references/             # 参考文档
-        └── script-guidelines.md
+├── scripts-coding/             # 脚本编程规范
+│   ├── SKILL.md                # 技能定义
+│   ├── templates/              # 脚本模板
+│   │   └── python_script_template.py
+│   └── references/             # 参考文档
+│       └── script-guidelines.md
+
+└── skill-builder/              # 技能构建器
+    ├── SKILL.md                # 技能构建指南
+    ├── scripts/                # 辅助脚本
+    ├── references/             # 参考文档
+    └── assets/                 # 模板资源
 ```
 
 ## 快速开始
@@ -159,6 +166,31 @@ cp scripts-coding/templates/python_script_template.py scripts/my-script.py
 - ERROR 级别日志自动包含执行信息和堆栈跟踪
 - 日志目录自动检测，支持 Agent 记忆系统集成
 
+### skill-builder - 技能构建器
+
+**核心功能：**
+- 技能发现与需求分析
+- 技能类型选择（simple、api-wrapper、document-processor、dev-workflow、research-synthesizer、code-exploration）
+- 目录结构初始化（SKILL.md、scripts/、references/、assets/）
+- SKILL.md 模板生成，包含标准 frontmatter 格式
+- 技能验证与质量检查
+
+**工作流程：**
+1. **Discovery** - 理解技能需求和触发条件
+2. **Archetype Selection** - 选择技能类型
+3. **Initialization** - 创建目录结构
+4. **Customization** - 编写技能内容
+5. **Validation** - 验证技能结构
+
+**目录结构：**
+```
+skill-builder/
+├── SKILL.md                # 技能构建指南
+├── scripts/                # 辅助脚本
+├── references/             # 参考文档
+└── assets/                 # 模板资源
+```
+
 ## 开发原则
 
 1. **先思考再编码** — 明确假设，暴露困惑，不确定就提问
@@ -194,6 +226,19 @@ cp scripts-coding/templates/python_script_template.py scripts/my-script.py
 - [OpenSpec](https://github.com/Fission-AI/OpenSpec) — 轻量级 AI 规格文档框架
 
 ## Changelog
+
+### v0.7.0 (2026-05-09)
+
+**新功能：**
+- 新增 `skill-builder` 技能构建器，合并 outfitter-dev/skills-dev 和 muranustb/skills-creator 的功能
+- 支持技能类型选择（simple、api-wrapper、document-processor、dev-workflow、research-synthesizer、code-exploration）
+- 提供完整的技能开发工作流：Discovery → Archetype Selection → Initialization → Customization → Validation
+- 包含标准 SKILL.md frontmatter 模板
+- 技能验证与质量检查功能
+
+**改进：**
+- 更新项目结构文档，添加 skill-builder 目录
+- 更新 README.md，添加 skill-builder 子技能说明
 
 ### v0.6.0 (2026-05-09)
 
