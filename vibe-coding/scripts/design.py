@@ -12,29 +12,15 @@ import argparse
 import sys
 from datetime import date
 from pathlib import Path
-
-# 解决 Windows 控制台 Unicode 输出问题
-if sys.stdout.encoding != 'utf-8':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
 from typing import Optional
 
-
-def find_project_root() -> Path:
-    """从当前工作目录向上查找项目根目录（包含 .git 或 pyproject.toml）"""
-    cwd = Path.cwd()
-    for parent in [cwd] + list(cwd.parents):
-        if (parent / ".git").exists() or (parent / "pyproject.toml").exists():
-            return parent
-    return cwd
+from common import (
+    setup_unicode_output, find_project_root, get_changes_dir,
+    PROGRESS_TEMPLATE_TASK_SECTION
+)
 
 
-def get_changes_dir(script_dir: Path, custom_dir: Optional[str] = None) -> Path:
-    """获取 changes 目录路径（默认：项目根目录/docs/vibe-coding/changes）"""
-    if custom_dir:
-        return Path(custom_dir)
-    # 默认路径：{项目根目录}/docs/vibe-coding/changes
-    project_root = find_project_root()
-    return project_root / "docs" / "vibe-coding" / "changes"
+setup_unicode_output()
 
 
 DESIGN_TEMPLATE = """# 设计文档：{name}
@@ -119,7 +105,7 @@ PROGRESS_TEMPLATE = """# 进度跟踪：{name}
 ## 阶段2：任务拆解
 
 | 字段 | 值 |
-|------|---|
+|------|------|
 | **状态** | ⏳ |
 | **开始时间** | - |
 | **完成时间** | - |
@@ -138,7 +124,7 @@ PROGRESS_TEMPLATE = """# 进度跟踪：{name}
 ## 阶段3：代码执行
 
 | 字段 | 值 |
-|------|---|
+|------|------|
 | **状态** | ⏳ |
 | **开始时间** | - |
 | **完成时间** | - |
@@ -146,16 +132,16 @@ PROGRESS_TEMPLATE = """# 进度跟踪：{name}
 
 ### 任务执行进度
 
-| # | 任务 | 状态 | 开始时间 | 完成时间 | 功能点进度 |
-|---|------|------|----------|----------|------------|
-| - | - | - | - | - | - |
+| # | 任务名称 | 状态 | 优先级 | 预计工时 | 功能点数 | 完成时间 |
+|---|----------|------|--------|----------|----------|----------|
+| - | - | - | - | - | - | - |
 
 ---
 
 ## 阶段4：测试验证
 
 | 字段 | 值 |
-|------|---|
+|------|------|
 | **状态** | ⏳ |
 | **开始时间** | - |
 | **完成时间** | - |
@@ -171,16 +157,16 @@ PROGRESS_TEMPLATE = """# 进度跟踪：{name}
 
 ### 调试记录
 
-| # | 问题描述 | 根因 | 修复方案 | 状态 | 记录时间 |
-|---|----------|------|----------|------|----------|
-| - | - | - | - | - | - |
+| 时间 | 问题描述 | 根因 | 修复方案 | 状态 |
+|------|----------|------|----------|------|
+| - | - | - | - | - |
 
 ---
 
 ## 阶段5：需求归档
 
 | 字段 | 值 |
-|------|---|
+|------|------|
 | **状态** | ⏳ |
 | **归档时间** | - |
 | **Git 标签** | - |
@@ -200,7 +186,6 @@ def create_proposal(name: str, desc: Optional[str], changes_dir: Path) -> int:
     """创建变更设计目录和 {name}-design.md"""
     change_dir = changes_dir / name
 
-    # 检查是否已存在
     if change_dir.exists():
         design_file = change_dir / f"{name}-design.md"
         if design_file.exists():
@@ -208,16 +193,13 @@ def create_proposal(name: str, desc: Optional[str], changes_dir: Path) -> int:
             print(f"   如需修改，请直接编辑 {name}-design.md")
             return 1
 
-    # 创建目录
     change_dir.mkdir(parents=True, exist_ok=True)
 
-    # 生成 {name}-design.md
     content = DESIGN_TEMPLATE.format(
         name=name,
         date=date.today().isoformat(),
     )
 
-    # 如果有描述，填充到目标中
     if desc:
         content = content.replace(
             "<!-- 这个变更要达成什么？用 1-3 句话描述预期结果 -->",
@@ -227,7 +209,6 @@ def create_proposal(name: str, desc: Optional[str], changes_dir: Path) -> int:
     design_file = change_dir / f"{name}-design.md"
     design_file.write_text(content, encoding="utf-8")
 
-    # 创建 {name}-progress.md
     progress_content = PROGRESS_TEMPLATE.format(
         name=name,
         date=date.today().isoformat(),
@@ -239,7 +220,6 @@ def create_proposal(name: str, desc: Optional[str], changes_dir: Path) -> int:
     except Exception as e:
         print(f"⚠️  进度文件创建失败：{e}")
 
-    # 输出结果
     print(f"✅ 设计文档已创建：{design_file}")
     print()
     print(f"📋 下一步：")
@@ -264,7 +244,6 @@ def main() -> int:
 
     args = parser.parse_args()
 
-    # 验证名称格式
     if not args.name.replace("-", "").replace("_", "").isalnum():
         print(f"❌ 变更名称格式错误：'{args.name}'")
         print(f"   仅允许小写字母、数字、连字符和下划线")
