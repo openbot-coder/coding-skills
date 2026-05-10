@@ -14,170 +14,47 @@
 """
 
 import argparse
-import re
-import subprocess
 import sys
-from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
 
-# 解决 Windows 控制台 Unicode 输出问题
-if sys.stdout.encoding != 'utf-8':
-    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
-
-
-def find_project_root() -> Path:
-    """从当前工作目录向上查找项目根目录（包含 .git 或 pyproject.toml）"""
-    cwd = Path.cwd()
-    for parent in [cwd] + list(cwd.parents):
-        if (parent / ".git").exists() or (parent / "pyproject.toml").exists():
-            return parent
-    return cwd
+from common import (
+    setup_unicode_output, find_project_root, get_changes_dir,
+    run_git_command, ensure_on_develop_branch, is_git_repo,
+    has_pending_changes, git_add_and_commit,
+    parse_tasks_from_status, update_task_status
+)
 
 
-def get_changes_dir(script_dir: Path, custom_dir: Optional[str] = None) -> Path:
-    """获取 changes 目录路径（默认：项目根目录/docs/vibe-coding/changes）"""
-    if custom_dir:
-        return Path(custom_dir)
-    # 默认路径：{项目根目录}/docs/vibe-coding/changes
-    project_root = find_project_root()
-    return project_root / "docs" / "vibe-coding" / "changes"
-
-
-def run_git_command(args: list, cwd: Optional[Path] = None) -> tuple:
-    """运行 git 命令"""
-    try:
-        result = subprocess.run(
-            args,
-            cwd=cwd,
-            capture_output=True,
-            text=True,
-            encoding='utf-8',
-            errors='replace',
-        )
-        return result.returncode == 0, result.stdout.strip(), result.stderr.strip()
-    except Exception as e:
-        return False, "", str(e)
-
-
-def ensure_on_develop_branch(project_root: Path) -> bool:
-    """确保当前在 develop 分支"""
-    success, current_branch, _ = run_git_command(["git", "branch", "--show-current"], project_root)
-    if current_branch != "develop":
-        print(f"⚠️  当前不在 develop 分支（当前：{current_branch}）")
-        print(f"   请切换到 develop 分支后再进行开发")
-        return False
-    return True
+setup_unicode_output()
 
 
 def git_commit_on_complete(task_id: str, task_name: str, changes_dir: Path) -> bool:
     """子任务完成时自动提交 Git 到 develop 分支"""
     project_root = changes_dir.parent.parent
 
-    # 确保在 develop 分支
     if not ensure_on_develop_branch(project_root):
         return False
-    
-    # 检查是否有 Git 仓库
-    success, _, _ = run_git_command(["git", "rev-parse", "--git-dir"], project_root)
-    if not success:
+
+    if not is_git_repo(project_root):
         print("⚠️  当前目录不是 Git 仓库，跳过 Git 提交")
         return False
-    
-    # 检查是否有更改
-    success, stdout, _ = run_git_command(["git", "status", "--porcelain"], project_root)
-    if not stdout:
+
+    if not has_pending_changes(project_root):
         print("📝 没有需要提交的更改")
         return True
-    
-    # 添加所有更改
-    success, _, stderr = run_git_command(["git", "add", "."], project_root)
-    if not success:
-        print(f"⚠️  git add 失败：{stderr}")
-        return False
-    
-    # 提交
-    commit_message = f"feat: task-{task_id} {task_name}"
-    success, _, stderr = run_git_command(["git", "commit", "-m", commit_message], project_root)
-    if not success:
-        print(f"⚠️  git commit 失败：{stderr}")
-        return False
-    
-    print(f"✅ Git 已提交到 develop：{commit_message}")
-    return True
 
-
-def parse_tasks_from_status(status_content: str) -> List[dict]:
-    """从 progress.md 解析任务列表"""
-    tasks = []
-    # 查找任务清单表格
-    in_task_table = False
-    for line in status_content.split("\n"):
-        if "| 序号 | 任务名称 |" in line and "功能点数" in line:
-            in_task_table = True
-            continue
-        if in_task_table:
-            if line.startswith("---") or line.startswith("**"):
-                break
-            # 匹配表格行
-            match = re.match(r"\|\s*(\d+)\s*\|\s*([^\|]+)\s*\|", line)
-            if match:
-                tasks.append({
-                    "id": match.group(1),
-                    "name": match.group(2).strip(),
-                    "status": "pending",
-                })
-    return tasks
-
-
-def update_status_file(status_file: Path, task_id: str, action: str) -> bool:
-    """更新 {name}-progress.md 中的任务状态"""
-    if not status_file.exists():
-        return False
-    
-    content = status_file.read_text(encoding="utf-8")
-    timestamp = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
-    
-    # 查找并更新任务行
-    lines = content.split("\n")
-    new_lines = []
-    updated = False
-    
-    for i, line in enumerate(lines):
-        # 匹配任务行
-        match = re.match(r"(\|\s*)(\d+)(\s*\|\s*[^\|]+\|\s*)[^\|]+(\s*\|\s*⏳)", line)
-        if match and match.group(2) == task_id:
-            if action == "done":
-                new_line = f"{match.group(1)}{task_id}{match.group(3)}✅{match.group(4).replace('⏳', '')}"
-                new_lines.append(new_line)
-                updated = True
-                continue
-            elif action == "skip":
-                new_line = f"{match.group(1)}{task_id}{match.group(3)}⏭️{match.group(4).replace('⏳', '')}"
-                new_lines.append(new_line)
-                updated = True
-                continue
-        
-        # 更新最后更新时间
-        if "**最后更新**" in line and not updated:
-            new_lines[-1] = line.replace("-", timestamp)
-        else:
-            new_lines.append(line)
-    
-    if updated:
-        status_file.write_text("\n".join(new_lines), encoding="utf-8")
-    
-    return updated
+    if git_add_and_commit(project_root, f"feat: task-{task_id} {task_name}"):
+        print(f"✅ Git 已提交到 develop：feat: task-{task_id} {task_name}")
+        return True
+    return False
 
 
 def get_status_icon(status: str) -> str:
-    """获取状态图标"""
     icons = {"pending": "⬜", "done": "✅", "skipped": "⏭️"}
     return icons.get(status, "❓")
 
 
 def get_status_label(status: str) -> str:
-    """获取状态标签"""
     labels = {"pending": "待执行", "done": "已完成", "skipped": "已跳过"}
     return labels.get(status, status)
 
@@ -198,7 +75,6 @@ def list_tasks(name: str, changes_dir: Path) -> int:
         print(f"⚠️  未找到任务。请先在 {name}-progress.md 中定义任务。")
         return 1
 
-    # 统计
     done_count = sum(1 for t in tasks if t["status"] == "done")
     pending_count = sum(1 for t in tasks if t["status"] == "pending")
     total = len(tasks)
@@ -213,7 +89,6 @@ def list_tasks(name: str, changes_dir: Path) -> int:
         label = get_status_label(task["status"])
         print(f"   {icon} 任务{task['id']}: {task['name']} [{label}]")
 
-    # 提示下一步
     next_pending = next((t for t in tasks if t["status"] == "pending"), None)
     if next_pending:
         print()
@@ -248,7 +123,7 @@ def start_task(name: str, task_id: str, changes_dir: Path) -> int:
     print(f"🟢 TDD 模式 - 绿：最少代码")
     print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print(f"   1. 编写最简单的代码让测试通过")
-    print(f"   2. 不要添加功能、重构或"改进"超出测试范围的部分")
+    print(f"   2. 不要添加功能、重构或「改进」超出测试范围的部分")
     print(f"   3. 运行测试，确认全部通过")
     print()
     print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -281,13 +156,11 @@ def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
         print(f"❌ {name}-progress.md 不存在：{progress_file}")
         return 1
 
-    # 获取任务名称用于 Git 提交
     progress_content = progress_file.read_text(encoding="utf-8")
     tasks = parse_tasks_from_status(progress_content)
     task_info = next((t for t in tasks if t["id"] == task_id), None)
     task_name = task_info["name"] if task_info else f"任务{task_id}"
 
-    # TDD 合规检查：询问用户是否遵循了 TDD 流程
     print()
     print("=" * 60)
     print("📋 TDD 合规检查")
@@ -300,7 +173,7 @@ def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
     print("  🔵 重构：是否在绿色后进行了代码清理？")
     print("  📊 覆盖率：测试覆盖率是否达到 100%？")
     print()
-    
+
     tdd_confirmed = input("确认已遵循 TDD 流程？(y/N): ").strip().lower()
     if tdd_confirmed != 'y':
         print()
@@ -315,21 +188,20 @@ def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
         print("   参考：./test-driven-development/SKILL.md")
         return 1
 
-    updated = update_status_file(progress_file, task_id, "done")
+    updated = update_task_status(progress_file, task_id, "done")
 
     if not updated:
         print(f"⚠️  请在 {name}-progress.md 中手动更新任务状态为 ✅")
 
     print(f"✅ 任务完成：任务{task_id}")
     print()
-    
-    # 自动提交 Git
+
     print("=" * 60)
     print("Git 提交")
     print("=" * 60)
     git_commit_on_complete(task_id, task_name, changes_dir)
     print()
-    
+
     print(f"📌 记录 TDD 循环次数到 {name}-progress.md：")
     print(f"   - 红：__ 次")
     print(f"   - 绿：__ 次")
@@ -340,7 +212,6 @@ def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
     print(f"   - 反例：__ 个")
     print(f"   - 边界值：__ 个")
 
-    # 检查是否还有待执行任务
     progress_content = progress_file.read_text(encoding="utf-8")
     tasks = parse_tasks_from_status(progress_content)
     pending = [t for t in tasks if t["status"] == "pending"]
@@ -373,7 +244,7 @@ def skip_task(name: str, task_id: str, changes_dir: Path) -> int:
         print(f"❌ {name}-progress.md 不存在：{progress_file}")
         return 1
 
-    updated = update_status_file(progress_file, task_id, "skip")
+    updated = update_task_status(progress_file, task_id, "skip")
 
     if not updated:
         print(f"⚠️  请在 {name}-progress.md 中手动更新任务状态为 ⏭️")
@@ -381,7 +252,6 @@ def skip_task(name: str, task_id: str, changes_dir: Path) -> int:
     print(f"⏭️  任务已跳过：任务{task_id}")
     print(f"   原因：_______________")
 
-    # 检查剩余任务
     progress_content = progress_file.read_text(encoding="utf-8")
     tasks = parse_tasks_from_status(progress_content)
     pending = [t for t in tasks if t["status"] == "pending"]
@@ -420,7 +290,6 @@ def main() -> int:
 
     args = parser.parse_args()
 
-    # start/done/skip 需要 --task
     if args.action != "list" and not args.task:
         print(f"❌ 操作 '{args.action}' 需要指定 --task 参数")
         return 1

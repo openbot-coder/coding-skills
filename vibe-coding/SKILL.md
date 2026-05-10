@@ -1,6 +1,7 @@
 ***
+---
 
-version: 0.6.0
+version: 0.7.0
 name: vibe-coding
 description: "轻量级 AI 编程技能。代码探索 → 需求分析 → 任务拆解 → 代码执行 → 测试验证 → 需求归档。"
 -------------------------------------------------------------------------------------------
@@ -146,6 +147,7 @@ vibe-coding/
 ├── SKILL.md                    ← 本文件（主入口路由器）
 ├── README.md                   ← 项目文档
 ├── scripts/
+│   ├── common.py               ← 公共工具模块（项目根目录查找、Git 操作等）
 │   ├── design.py               ← 阶段1：需求分析
 │   ├── plans.py                ← 阶段2：任务拆解
 │   ├── execute.py              ← 阶段3：代码执行
@@ -160,6 +162,21 @@ vibe-coding/
 ├── references/                 ← 参考文档
 └── assets/                     ← 资源文件
 ```
+
+### scripts/common.py 公共模块
+
+提供所有脚本共享的工具函数：
+
+| 函数 | 说明 |
+|------|------|
+| `setup_unicode_output()` | 解决 Windows 控制台 Unicode 输出问题 |
+| `find_project_root()` | 从当前目录向上查找项目根目录 |
+| `get_changes_dir()` | 获取 changes 目录路径 |
+| `run_git_command()` | 执行 git 命令 |
+| `ensure_on_develop_branch()` | 确保当前在 develop 分支 |
+| `git_add_and_commit()` | 执行 git add . 和 git commit |
+| `is_git_repo()` | 检查目录是否为 Git 仓库 |
+| `has_pending_changes()` | 检查是否有未提交的更改 |
 
 ## 参考资源
 
