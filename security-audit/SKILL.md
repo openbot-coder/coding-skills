@@ -206,6 +206,29 @@ SQL WHERE 子句拼接 → 数据库执行 → 数据泄露
 
 ---
 
+## 输出规范
+
+### 报告命名规则
+
+```
+【YYYYMMDD】_SECURITY_AUDIT_REPORT_V1.md
+```
+
+**示例**：
+- `【20260510】_SECURITY_AUDIT_REPORT_V1.md`
+
+### 报告存放位置
+
+```
+{被扫描项目根目录}/docs/security_audit/{报告文件名}
+```
+
+**示例**：
+- 被审计项目：`/path/to/project/`
+- 报告路径：`/path/to/project/docs/security_audit/【20260510】_SECURITY_AUDIT_REPORT_V1.md`
+
+---
+
 ## 使用方式
 
 当用户请求进行安全审计时，自动调用此 Skill。
@@ -216,3 +239,25 @@ SQL WHERE 子句拼接 → 数据库执行 → 数据泄露
 - "安全检查"
 - "security audit"
 - "漏洞评估"
+
+**审计执行流程**：
+
+1. **确定被审计项目路径**
+   - 从用户输入或当前工作目录确定项目路径
+
+2. **创建报告目录**（如不存在）
+   ```bash
+   mkdir -p {项目路径}/docs/security_audit
+   ```
+
+3. **执行审计**
+   - 按阶段1-3执行审计流程
+
+4. **生成报告**
+   - 使用报告模板填充内容
+   - 按命名规则命名：`【YYYYMMDD】_SECURITY_AUDIT_REPORT_V1.md`
+   - 保存到 `docs/security_audit/` 目录
+
+5. **向用户返回审计结果摘要**
+   - 列出发现漏洞数量和严重度分布
+   - 提供报告完整路径
