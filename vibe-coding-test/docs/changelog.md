@@ -18,4 +18,12 @@
 ### Status
 ⏳ 开发中
 
+## [0.2.1] - 2026-05-12
+
+### Fixed
+- fix login bug
+
+### Status
+⏳ 开发中
+
 ---
