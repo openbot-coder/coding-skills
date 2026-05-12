@@ -10,4 +10,12 @@
 ### Status
 ⏳ 设计中
 
+## [0.2.0] - 2026-05-12
+
+### Changed
+- new feature
+
+### Status
+⏳ 开发中
+
 ---
