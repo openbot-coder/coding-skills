@@ -4,10 +4,16 @@
 
 ## 概述
 
-`coding-skills` 是一套轻量级 AI 编程工作流，核心理念：**先想清楚再动手，每一步都有据可查**。
+`coding-skills` 是一套轻量级 AI 编程工作流，核心理念：**设计文档是项目的唯一真相源（SSOT），AI 凭此可重建整个项目**。
 
 ```
-需求分析 → 任务拆解 → 代码执行 → 测试验证 → 需求归档
+阶段0: 项目初始化 → design.md 就绪 → 阶段1-5 变更循环（每需求一次）
+
+阶段0: 项目初始化（仅一次）
+  绿地 --init → 创建完整骨架
+  棕地 --adopt → 扫描已有代码
+
+阶段1: 需求分析 → 阶段2: 任务拆解 → 阶段3: 代码执行 → 阶段4: 测试验证 → 阶段5: 需求归档
 ```
 
 ## 特点
@@ -22,7 +28,7 @@
 | 技能 | 用途 | 说明 |
 |------|------|------|
 | `code-exploration` | 代码探索 | 修改代码前先理解代码库 |
-| `vibe-coding` | AI编程工作流 | 五阶段开发流程 |
+| `vibe-coding` | AI编程工作流 | 阶段0 初始化 + 五阶段变更循环 |
 | `scripts-coding` | 脚本编程规范 | 规范脚本开发流程 |
 | `skill-builder` | 技能构建器 | 创建和验证 Agent Skills |
 
@@ -33,18 +39,19 @@ coding-skills/
 ├── SKILL.md                    # 主入口：技能路由器
 ├── README.md                   # 项目文档
 ├── LICENSE                     # 许可证
-├── .gitignore                  # Git 忽略配置
 
 ├── code-exploration/           # 代码探索子技能
 │   └── SKILL.md                # 代码探索指南
 
-├── vibe-coding/                # AI编程工作流
-│   ├── SKILL.md                # 主入口：五阶段工作流
+├── vibe-coding/                # AI编程工作流（核心）
+│   ├── SKILL.md                # 主入口：阶段0 + 五阶段变更循环
 │   ├── README.md               # vibe-coding 文档
 │   ├── scripts/                # 核心脚本工具
-│   │   ├── design.py           # 阶段1：需求分析
+│   │   ├── design.py           # 阶段0：初始化(--init/--adopt) + 阶段1：需求分析(--change/--rollback)
+│   │   ├── common.py           # 通用工具：find_project_root / detect_project_info 等
+│   │   ├── changelog.py        # Changelog 管理：版本标记、状态更新
 │   │   ├── plans.py            # 阶段2：任务拆解
-│   │   ├── execute.py          # 阶段3：代码执行
+│   │   ├── execute.py          # 阶段3：代码执行（TDD）
 │   │   ├── verify.py           # 阶段4：测试验证
 │   │   └── archive.py          # 阶段5：需求归档
 │   ├── initialize/             # 项目初始化子技能
@@ -61,31 +68,66 @@ coding-skills/
 │   └── references/             # 参考文档
 │       └── script-guidelines.md
 
-└── skill-builder/              # 技能构建器
-    ├── SKILL.md                # 技能构建指南
-    ├── scripts/                # 辅助脚本
-    ├── references/             # 参考文档
-    └── assets/                 # 模板资源
+├── skill-builder/              # 技能构建器
+│   ├── SKILL.md                # 技能构建指南
+│   ├── scripts/                # 辅助脚本
+│   ├── references/             # 参考文档
+│   └── assets/                 # 模板资源
+
+└── security-audit/             # 安全审计
 ```
 
 ## 快速开始
 
-### vibe-coding 五阶段工作流
+### vibe-coding 工作流
 
-**阶段 1：需求分析**
+**两种模式：**
+- **模式 A（推荐）** — 中央 `docs/design.md` 作为唯一真相源，需求变更直接修改
+- **模式 B（旧）** — 每个需求独立的 `{name}-design.md`，向后兼容
+
+#### 阶段0：项目初始化（仅一次）
+
 ```bash
 cd vibe-coding
+
+# 绿地项目（全新空白目录）
+python scripts/design.py --init --name "my-project" --lang python --desc "项目描述"
+
+# 棕地项目（已有代码，自动扫描项目信息）
+python scripts/design.py --adopt
+
+# 棕地项目（指定项目名和起始版本）
+python scripts/design.py --adopt --name "my-project" --version 1.0.0
+```
+
+初始化完成后，`docs/design.md` 和 `docs/changelog.md` 就绪，进入变更循环。
+
+#### 阶段1：需求分析
+
+```bash
+# 模式 A：编辑 design.md 后记录变更
+python scripts/design.py --change --desc "添加暗色模式" --bump minor
+
+# 模式 B（旧）：创建独立变更文档
 python scripts/design.py --name add-dark-mode --desc "添加暗色模式支持"
 ```
-编辑生成的 `docs/vibe-coding/changes/add-dark-mode/add-dark-mode-design.md`。
 
-**阶段 2：任务拆解**
+编辑 `docs/design.md`（模式 A）或 `{name}-design.md`（模式 B）。
+
+#### review-design：设计审查
+
+AI 先**完整读取设计文档**，逐章审查完整性、一致性、可执行性。审查通过后请求用户批准。
+
+#### 阶段2：任务拆解
+
 ```bash
 python scripts/plans.py --name add-dark-mode
 ```
+
 编辑 `{name}-progress.md`，填充任务清单。
 
-**阶段 3：代码执行**
+#### 阶段3：代码执行
+
 ```bash
 # 查看任务
 python scripts/execute.py --name add-dark-mode --action list
@@ -97,12 +139,15 @@ python scripts/execute.py --name add-dark-mode --task T1 --action start
 python scripts/execute.py --name add-dark-mode --task T1 --action done
 ```
 
-**阶段 4：测试验证**
+#### 阶段4：测试验证
+
 ```bash
-python scripts/verify.py --name add-dark-mode
+python scripts/verify.py --name add-dark-mode --action start
+python scripts/verify.py --name add-dark-mode --action done
 ```
 
-**阶段 5：需求归档**
+#### 阶段5：需求归档
+
 ```bash
 python scripts/archive.py --name add-dark-mode
 ```
@@ -112,7 +157,6 @@ python scripts/archive.py --name add-dark-mode
 使用 `scripts-coding/templates/python_script_template.py` 创建规范的脚本文件：
 
 ```bash
-# 创建脚本
 cp scripts-coding/templates/python_script_template.py scripts/my-script.py
 ```
 
@@ -138,20 +182,25 @@ cp scripts-coding/templates/python_script_template.py scripts/my-script.py
 
 ### vibe-coding - AI编程工作流
 
-**五阶段流程：**
+**整体流程：**
 
 | 阶段 | 脚本 | 输入 | 输出 |
 |------|------|------|------|
-| 1. 需求分析 | `design.py` | 变更名称、描述 | `{name}-design.md` |
-| 2. 任务拆解 | `plans.py` | `{name}-design.md` | `{name}-progress.md` |
-| 3. 代码执行 | `execute.py` | `{name}-progress.md` | 更新任务状态 |
-| 4. 测试验证 | `verify.py` | `{name}-progress.md` | 验证结果 |
-| 5. 需求归档 | `archive.py` | 用户已批准 | 归档到 `archive/` |
+| **0. 项目初始化** | `design.py` | `--init` / `--adopt` | `docs/design.md` + `docs/changelog.md` + 项目骨架 |
+| **1. 需求分析** | `design.py` | `--change` / `--name` | design.md 更新 / `{name}-design.md` |
+| **2. 任务拆解** | `plans.py` | design.md | `{name}-progress.md` |
+| **3. 代码执行** | `execute.py` | `{name}-progress.md` | 更新任务状态 |
+| **4. 测试验证** | `verify.py` | `{name}-progress.md` | 验证结果 |
+| **5. 需求归档** | `archive.py` | 用户已批准 | git tag + 归档 |
+
+**两种模式：**
+- **模式 A（推荐）：** 中央 `docs/design.md` → git tag 版本与 design.md 同步
+- **模式 B（旧）：** 独立 `{name}-design.md` + `{name}-progress.md` → 归档到 `archive/`
 
 **子技能：**
-- `initialize` - 项目初始化
+- `initialize` - 项目初始化（阶段0，一次）
 - `writing-design` - 需求调研
-- `review-design` - 设计审查
+- `review-design` - 设计审查（先完整读取 design.md，再逐章评审）
 - `task-breakdown` - 任务拆解
 - `test-driven-development` - TDD开发
 - `debugging-and-verification` - 验证调试
@@ -227,76 +276,64 @@ skill-builder/
 
 ## Changelog
 
+### v0.8.0 (2026-05-13)
+
+**结构调整：**
+- 将项目初始化拆分为**阶段0**（仅一次），与阶段1-5变更循环明确分离
+- 绿地 `--init` 和棕地 `--adopt` 归入阶段0，不再是阶段1的一部分
+- 阶段1仅保留 `--change`（需求变更）和 `--rollback`（版本回退）
+
+**新增/改进：**
+- `design.py` 同时处理阶段0（--init/--adopt）和阶段1（--change/--rollback）
+- `find_project_root()` 检测支持扩展（package.json / Cargo.toml / go.mod）
+- `detect_project_info()` 改用 `elif` 链，避免语言被后匹配文件错误覆盖
+- `review-design` 子技能更新：强制要求**先完整读取 design.md** 再审查，支持模式 A 全局章节检查
+
+**Bug 修复：**
+- 修复 `changelog.py` 中 `find_tag_for_version` 的内联 import，改为模块级导入
+- 删除 `DESIGN_TEMPLATE_B` 死代码（已被 `generate_greenfield_design()` 替代）
+
 ### v0.7.0 (2026-05-09)
 
 **新功能：**
-- 新增 `skill-builder` 技能构建器，合并 outfitter-dev/skills-dev 和 muranustb/skills-creator 的功能
-- 支持技能类型选择（simple、api-wrapper、document-processor、dev-workflow、research-synthesizer、code-exploration）
-- 提供完整的技能开发工作流：Discovery → Archetype Selection → Initialization → Customization → Validation
-- 包含标准 SKILL.md frontmatter 模板
+- 新增 `skill-builder` 技能构建器
+- 支持技能类型选择
+- 提供完整的技能开发工作流
 - 技能验证与质量检查功能
-
-**改进：**
-- 更新项目结构文档，添加 skill-builder 目录
-- 更新 README.md，添加 skill-builder 子技能说明
 
 ### v0.6.0 (2026-05-09)
 
 **新功能：**
 - 新增 `scripts-coding` 脚本编程规范技能
 - 提供 Python 脚本模板，包含完整日志配置
-- 实现文件命名规范：`{YYYYMMDD}-{代码用途}-{version}.py`
-- 日志格式增强：包含文件名和行号
-- ERROR 级别日志自动包含 exec info 和 stack info
-- 日志目录自动检测，支持 Agent 记忆系统集成
-
-**改进：**
-- 更新项目结构文档
-- 更新 README.md，添加 scripts-coding 子技能说明
+- 日志格式增强
 
 ### v0.5.0 (2026-05-03)
 
 **新功能：**
 - 新增 `code-exploration` 代码探索子技能
-- code-exploration 支持使用 graphify 生成交互式知识图谱
-- 代码探索报告输出到 `docs/{项目名}-{version}-exploration/` 目录
-
-**改进：**
-- 完善 README.md，添加各子技能详细说明
-- Git 分支规则：所有提交到 develop 分支，通过 PR 合并到 main
-
-**Bug 修复：**
-- 修复 `plans.py` 中 `extract_design_summary` 函数的变量名错误
+- 支持 graphify 生成交互式知识图谱
 
 ### v0.4.0 (2026-05-02)
 
 **新功能：**
 - 重构为单一 vibe-coding 轻量级 5 阶段工作流
 - 参考 OpenSpec 设计理念
-- 包含 6 个子技能
-
-**特点：**
-- 零依赖、跨平台
-- 强制用户批准门槛
-- 内置防跑偏检查机制
 
 ### v0.3.0 (2026-04-28)
 
 **新功能：**
 - 新增阶段：PRD 与详细设计
-- 新增技能 `writing-prd-and-design`
 
 ### v0.2.0 (2026-04-27)
 
 **新功能：**
 - 添加版本号到 SKILL.md
 - 添加 6 条工程原则
-- 添加平台集成指南
 
 ### v0.1.0 (2026-04-26)
 
 - 初始版本发布
-- 完成开发生命周期 7 阶段技能体系
 
 ## License
 
