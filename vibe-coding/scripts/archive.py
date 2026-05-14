@@ -1,1 +1,345 @@
-... (archive.py content as read above)
+#!/usr/bin/env python3
+"""vibe-coding 阶段5：归档已完成工作
+
+用法：
+    python scripts/archive.py --name <变更名称>    # 归档变更
+    python scripts/archive.py --list               # 列出已归档变更
+
+功能：
+    - 提交 Git 到 develop 分支
+    - 推送到远程仓库
+    - 询问是否打标签
+    - 创建 PR 将 develop 合并到 main
+    - 移动变更目录到 archive/
+"""
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+from typing import Optional
+
+from common import (
+    setup_unicode_output, find_project_root, get_changes_dir, get_docs_dir,
+    run_git_command, ensure_on_develop_branch, is_git_repo,
+    has_pending_changes, git_add_and_commit, read_version
+)
+
+
+setup_unicode_output()
+
+
+def git_push(project_root: Path) -> bool:
+    """推送到远程仓库（develop 分支）"""
+    if not ensure_on_develop_branch(project_root):
+        return False
+
+    success, stdout, _ = run_git_command(["git", "remote"], project_root)
+    if not stdout:
+        print("⚠️  没有远程仓库，跳过推送")
+        return False
+
+    success, _, stderr = run_git_command(["git", "push", "-u", "origin", "develop"], project_root)
+    if not success:
+        print(f"⚠️  git push 失败：{stderr}")
+        return False
+
+    print("✅ 已推送到远程仓库（develop 分支）")
+    return True
+
+
+def check_graphify_outdated(project_root: Path) -> bool:
+    """检查 graphify-out 是否落后于当前代码
+
+    比较最近包含 graphify-out 的 tag 与当前 src/ 的差异。
+    如果有变更，提示用户手动更新 graphify。
+
+    Returns:
+        True = graphify 需要更新, False = 已最新
+    """
+    # 查找最近包含 graphify-out 的 tag
+    ok, stdout, _ = run_git_command(
+        ["git", "tag", "-l", "--sort=-v:refname"],
+        project_root,
+    )
+    if not ok or not stdout:
+        return False
+
+    tags = [t.strip() for t in stdout.strip().split("\n") if t.strip()]
+    last_exploration_tag = None
+    for tag in tags:
+        tag_ok, tag_stdout, _ = run_git_command(
+            ["git", "ls-tree", "-d", tag, "--", "graphify-out"],
+            project_root,
+        )
+        if tag_ok and tag_stdout:
+            last_exploration_tag = tag
+            break
+
+    if not last_exploration_tag:
+        return False  # 从未有 graphify 缓存
+
+    # 比较源码是否有变更
+    code_dirs = ["src", "app", "lib", "cmd", "pkg", "source", "tests", "test"]
+    existing_dirs = [d for d in code_dirs if (project_root / d).exists()]
+    if not existing_dirs:
+        return False
+
+    ok, stdout, _ = run_git_command(
+        ["git", "diff", "--name-only", f"{last_exploration_tag}..HEAD", "--"] + existing_dirs,
+        project_root,
+    )
+    if ok and stdout:
+        changed_files = [line.strip() for line in stdout.split("\n") if line.strip()]
+        print(f"⚠️  graphify 图谱可能落后于代码变更")
+        print(f"   自 {last_exploration_tag} 以来，{len(changed_files)} 个文件有变更")
+        print(f"   建议先运行: python ../code-exploration/scripts/explore.py")
+        print()
+        return True
+    return False
+
+
+def create_tag(name: str, project_root: Path) -> bool:
+    """创建标签（优先使用 design.md 版本号）"""
+    # 打标签前检查 graphify 是否最新
+    check_graphify_outdated(project_root)
+
+    # 优先从中央 design.md 获取版本号
+    docs_dir = project_root / "docs"
+    design_version = None
+    if (docs_dir / "design.md").exists():
+        design_version = read_version(docs_dir / "design.md")
+
+    if design_version:
+        default_tag = f"v{design_version}"
+        print(f"   design.md 版本号：v{design_version}")
+    else:
+        default_tag = f"v1.0/{name}"
+
+    print()
+    response = input(f"是否需要打标签？(直接回车使用 {default_tag}，输入 n 跳过): ").strip()
+
+    if response.lower() == 'n':
+        print("跳过打标签")
+        return False
+
+    tag_name = response if response else default_tag
+
+    success, _, stderr = run_git_command(["git", "tag", "-a", tag_name, "-m", f"Release {tag_name}"], project_root)
+    if not success:
+        print(f"⚠️  创建标签失败：{stderr}")
+        return False
+
+    success, _, stderr = run_git_command(["git", "push", "origin", tag_name], project_root)
+    if not success:
+        print(f"⚠️  推送标签失败：{stderr}")
+        return False
+
+    print(f"✅ 已创建并推送标签：{tag_name}")
+    return True
+
+
+def create_pr_to_main(project_root: Path) -> bool:
+    """创建 PR 将 develop 分支合并到 main 分支"""
+    success, _, _ = run_git_command(["git", "rev-parse", "--verify", "main"], project_root)
+    if not success:
+        print("⚠️  main 分支不存在，跳过 PR 创建")
+        print("   请先创建 main 分支或手动合并")
+        return False
+
+    success, stdout, _ = run_git_command(["git", "remote"], project_root)
+    if not stdout:
+        print("⚠️  没有远程仓库，跳过 PR 创建")
+        return False
+
+    print()
+    print("=" * 60)
+    print("PR 创建")
+    print("=" * 60)
+    print("是否创建 PR 将 develop 合并到 main？")
+    print()
+    response = input("输入 y 创建 PR，其他跳过: ").strip().lower()
+
+    if response != 'y':
+        print("跳过 PR 创建")
+        return False
+
+    pr_title = input("PR 标题（直接回车使用默认）: ").strip()
+    if not pr_title:
+        pr_title = "Merge develop to main"
+
+    pr_body = input("PR 描述（直接回车使用默认）: ").strip()
+    if not pr_body:
+        pr_body = "归档完成，将 develop 分支合并到 main 分支"
+
+    success, _, stderr = run_git_command(
+        ["gh", "pr", "create", "--base", "main", "--head", "develop", "--title", pr_title, "--body", pr_body],
+        project_root
+    )
+    if success:
+        print("✅ PR 创建成功")
+        return True
+    else:
+        print("⚠️  gh CLI 不可用或 PR 创建失败，请手动创建 PR")
+        print("   命令：gh pr create --base main --head develop")
+        return False
+
+
+def check_archive_conditions(progress_file: Path) -> tuple:
+    """检查归档条件"""
+    if not progress_file.exists():
+        return False, "{name}-progress.md 不存在"
+
+    progress_content = progress_file.read_text(encoding="utf-8")
+
+    if "| ✅ 已完成 |" not in progress_content and "| 已完成 |" not in progress_content:
+        if "🔄 进行中" in progress_content:
+            return False, "阶段4验证尚未完成"
+
+    return True, ""
+
+
+def git_commit(name: str, changes_dir: Path) -> bool:
+    """提交 Git 到 develop 分支"""
+    project_root = changes_dir.parent.parent
+
+    if not ensure_on_develop_branch(project_root):
+        return False
+
+    if not is_git_repo(project_root):
+        print("⚠️  当前目录不是 Git 仓库，跳过 Git 提交")
+        return False
+
+    if not has_pending_changes(project_root):
+        print("📝 没有需要提交的更改")
+        return False
+
+    if git_add_and_commit(project_root, f"chore: 完成变更 {name}"):
+        print(f"✅ Git 已提交到 develop：chore: 完成变更 {name}")
+        return True
+    return False
+
+
+def archive_change(name: str, changes_dir: Path) -> int:
+    """归档已完成变更"""
+    change_dir = changes_dir / name
+    archive_dir = changes_dir / "archive"
+    progress_file = changes_dir / f"{name}-progress.md"
+
+    if not change_dir.exists():
+        print(f"❌ 变更 '{name}' 不存在：{change_dir}")
+        print(f"   请确认变更名称是否正确")
+        return 1
+
+    can_archive, reason = check_archive_conditions(progress_file)
+    if not can_archive:
+        print(f"⚠️  归档条件不满足：{reason}")
+        response = input("是否仍要归档？(y/N): ").strip().lower()
+        if response != 'y':
+            return 1
+
+    project_root = changes_dir.parent.parent
+
+    print("=" * 60)
+    print("Git 操作（提交到 develop 分支）")
+    print("=" * 60)
+    git_commit(name, changes_dir)
+
+    git_push(project_root)
+
+    create_tag(name, project_root)
+
+    create_pr_to_main(project_root)
+
+    archive_dir.mkdir(parents=True, exist_ok=True)
+
+    archive_target = archive_dir / name
+    if archive_target.exists():
+        print(f"❌ 归档目录已存在：{archive_target}")
+        print(f"   请手动处理冲突")
+        return 1
+
+    shutil.move(str(change_dir), str(archive_target))
+
+    archived_files = list(archive_target.iterdir())
+    file_names = [f.name for f in archived_files]
+
+    print()
+    print("=" * 60)
+    print("归档完成")
+    print("=" * 60)
+    print(f"✅ 变更 '{name}' 已归档")
+    print(f"   位置：{archive_target}")
+    print(f"   文件：{', '.join(sorted(file_names))}")
+    print()
+    print(f"🎉 工作流完成！可以开始新的变更：")
+    print(f"   python scripts/design.py --name <新变更名称>")
+
+    return 0
+
+
+def list_archived(changes_dir: Path) -> int:
+    """列出已归档的变更"""
+    archive_dir = changes_dir / "archive"
+
+    if not archive_dir.exists():
+        print(f"📂 归档目录为空")
+        return 0
+
+    archived = [d for d in archive_dir.iterdir() if d.is_dir()]
+
+    if not archived:
+        print(f"📂 归档目录为空")
+        return 0
+
+    print(f"📂 已归档变更（{len(archived)} 个）：")
+    for d in sorted(archived):
+        conclusion = ""
+        progress_file = d / f"{d.name}-progress.md"
+        if progress_file.exists():
+            content = progress_file.read_text(encoding="utf-8")
+            for line in content.split("\n"):
+                if "结论" in line:
+                    conclusion = line.strip()
+                    break
+        print(f"   📁 {d.name}")
+        if conclusion:
+            print(f"      {conclusion}")
+
+    return 0
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        description="vibe-coding 阶段5：归档已完成工作",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+示例：
+  python scripts/archive.py --name add-dark-mode
+  python scripts/archive.py --list
+        """,
+    )
+    parser.add_argument("--name", default=None, help="变更名称")
+    parser.add_argument("--list", action="store_true", help="列出已归档变更")
+    parser.add_argument("--dir", default=None, help="自定义 changes 目录路径")
+
+    args = parser.parse_args()
+
+    script_dir = Path(__file__).resolve().parent
+    changes_dir = get_changes_dir(script_dir, args.dir)
+
+    if args.list:
+        return list_archived(changes_dir)
+
+    if not args.name:
+        print(f"❌ 请指定 --name 或 --list")
+        parser.print_help()
+        return 1
+
+    return archive_change(args.name, changes_dir)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

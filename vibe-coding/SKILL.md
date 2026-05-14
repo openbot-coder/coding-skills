@@ -1,10 +1,7 @@
-***
 ---
-
-version: 0.8.0
 name: vibe-coding
 description: "轻量级 AI 编程技能。产品设计文档驱动：design.md 作为唯一真相源，变更直接修改，changelog 独立追溯，git tag 同步版本。"
--------------------------------------------------------------------------------------------
+---
 
 # Vibe Coding — 产品设计驱动开发工作流
 
@@ -241,9 +238,9 @@ vibe-coding/
 ├── SKILL.md                    ← 本文件（主入口路由器）
 ├── README.md                   ← 项目文档
 ├── scripts/
-│   ├── common.py               ← 公共工具模块
-│   ├── design.py               ← 阶段0+1：初始化(--init/--adopt) + 需求分析(--change/--rollback)
-│   ├── changelog.py            ← Changelog 管理工具
+│   ├── common.py               ← 公共工具模块（项目根目录查找、Git 操作、版本管理等）
+│   ├── design.py               ← 阶段0+1：初始化(--init/--adopt) + 需求分析(--change/--rollback)；模式B：--name
+│   ├── changelog.py            ← Changelog 管理工具（模式A专用）
 │   ├── plans.py                ← 阶段2：任务拆解
 │   ├── execute.py              ← 阶段3：代码执行
 │   ├── verify.py               ← 阶段4：测试验证
@@ -272,8 +269,9 @@ project-root/
 
 ### scripts/common.py 公共模块
 
-|函数|说明|
-|函数|说明|
+提供所有脚本共享的工具函数：
+
+| 函数 | 说明 |
 |------|------|
 | `setup_unicode_output()` | 解决 Windows 控制台 Unicode 输出问题 |
 | `find_project_root()` | 从当前目录向上查找项目根目录 |
