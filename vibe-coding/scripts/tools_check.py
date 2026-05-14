@@ -37,10 +37,12 @@ REQUIRED_CORE_TOOLS = {
 # 可选的代码库分析工具
 OPTIONAL_ANALYSIS_TOOLS = {
     "graphify": {
-        "commands": [["graphify", "--version"]],
+        "commands": [
+            ["graphify", "--help"],
+        ],
         "required": False,
-        "install_hint": "pip install graphifyy && graphify install",
-        "description": "知识图谱分析（统一 Python 版本）"
+        "install_hint": "uv tool install graphifyy && graphify install",
+        "description": "代码库结构分析"
     },
     "sourcegraph": {
         "commands": [["sg", "--version"]],

@@ -1,25 +1,32 @@
 ---
 name: skill-builder
-description: "技能构建器 - 帮助用户从零开始创建高质量的 Agent Skills。支持多种技能类型、分步骤引导、完整文档生成和结构验证。"
+description: "技能构建器 v2.0 - 从零创建高质量的 Agent Skills。支持 SKILL 审核机制（可用性 + 安全性）、审计日志系统、自我进化能力。"
 ---
 
-# Skill Builder — 技能构建器
+# Skill Builder — 技能构建器 v2.0
 
 ## 概述
 
-专业技能创建助手，帮助用户从零开始创建高质量的 Agent Skills。支持多种模板类型、分步骤引导、完整文档生成，是构建自定义技能的一站式解决方案。
+专业技能创建助手，帮助用户从零开始创建高质量的 Agent Skills。支持多种模板类型、分步骤引导、完整审核机制、审计日志和自我进化。
 
 **核心功能：**
 - 技能发现与需求分析
 - 技能类型选择（Archetype Selection）
 - 目录结构初始化
 - SKILL.md 模板生成
-- 技能验证与质量检查
+- **可用性审核**（格式、描述清晰度、流程连贯性、可执行性）
+- **安全性审核**（注入、凭证泄露、路径穿越等 12 项检查）
+- **审计日志**（统一记录 + 统计 + 失败案例复盘）
+- **自我进化**（失败模式分析 + 自动优化审核规则）
 
 ## 工作流程
 
 ```
-阶段1: Discovery → 阶段2: Archetype Selection → 阶段3: Initialization → 阶段4: Customization → 阶段5: Validation
+阶段1: Discovery → 阶段2: Archetype Selection → 阶段3: Initialization
+    → 阶段4: Customization → 阶段5: Review       ← v2.0 新增审核阶段
+    → 阶段6: Publish（日志记录）
+    ↓
+持续: Self-Evolution（失败分析 → 规则更新 → 模板优化）
 ```
 
 ### 阶段1：Discovery（发现）
@@ -81,16 +88,126 @@ metadata:
 | `compatibility` | 否 | 1-500 字符，环境要求 |
 | `metadata` | 否 | 自定义字段对象 |
 
-### 阶段5：Validation（验证）
+### 阶段5：Review（审核）— v2.0 新增
 
-验证技能结构的完整性和正确性：
+创建完成后，**必须**进行可用性和安全性双重审核。
 
-- ✅ SKILL.md 文件存在
-- ✅ Frontmatter 包含 name 和 description
-- ✅ name 符合命名规范（kebab-case）
-- ✅ 目录名称与 name 一致
-- ✅ description 包含足够信息
-- ✅ 文件编码为 UTF-8
+#### 5.1 可用性审核（Quality Review）
+
+确保生成的 SKILL 在日常使用中可用、易用：
+
+| 检查项 | 内容 | 命令 |
+|--------|------|------|
+| **格式正确性** | front matter 完整性、YAML 语法、分隔符闭合 | `--quality` |
+| **描述清晰度** | description 是否包含 `WHAT + WHEN`、触发词是否明确 | `--quality` |
+| **业务流程连贯性** | 流程是否完整、无死循环、条件覆盖全面 | `--quality` |
+| **可执行性** | 引用的脚本/文档是否存在、路径是否正确 | `--quality` |
+
+```bash
+# 全量审核
+python scripts/review.py <skill-dir>
+
+# 仅可用性审核
+python scripts/review.py <skill-dir> --quality
+```
+
+#### 5.2 安全性审核（Security Review）
+
+检查 SKILL 中的安全风险（共 12+ 个检查模式）：
+
+| 检查项 | 危险信号 | 严重度 |
+|--------|----------|--------|
+| **代码注入** | `exec()`、`eval()`、`os.system()` | 🔴 严重 |
+| **凭证泄露** | 硬编码密码、API Key、Token、Secret | 🔴 严重 |
+| **路径穿越** | `../` 不受控的文件路径操作 | 🟡 高危 |
+| **命令执行** | shell=True、反引号命令 | 🔴 严重 |
+| **反序列化** | pickle.loads() | 🟡 高危 |
+| **SSRF** | f-string 拼接 URL | 🟡 高危 |
+| **权限问题** | sudo、chmod 777、rm -rf / | 🟡 高危 |
+
+> 安全性审核逻辑复用 `security-audit` 技能的部分规则。
+
+```bash
+# 仅安全性审核
+python scripts/review.py <skill-dir> --security
+
+# JSON 格式输出（用于脚本集成）
+python scripts/review.py <skill-dir> --json
+```
+
+**审核通过后方可发布。** 审核结果将被自动记录到审计日志系统。
+
+## 审计日志系统（Audit Log）— v2.0 新增
+
+每次 SKILL 的创建、审核、调用都会记录到统一的日志系统，供统计和复盘。
+
+```
+logs/skill-audit/
+├── skill-builder-audit.log        ← 每次 SKILL 创建/审核记录（JSON Lines）
+├── skill-call-stats.json          ← 每日统计（通过/失败次数）
+└── failure-cases/                 ← 失败案例 Md 文档
+    ├── YYYYMMDD-HHMMSS-技能名.md
+    └── ...
+```
+
+每条日志包含：时间戳、SKILL 名称、审核结果、检查明细、失败原因、调用来源。
+
+```bash
+# 查看统计
+python scripts/audit_log.py stats
+
+# 查看最近审核记录
+python scripts/audit_log.py list
+
+# 查看失败案例
+python scripts/audit_log.py failures
+
+# 手动记录
+python scripts/audit_log.py record <skill-dir> --result pass --checks '{"...":{...}}'
+```
+
+## 自我进化（Self-Evolution）— v2.0 新增
+
+基于审计日志和历史数据，实现技能的自动迭代。
+
+### 分析失败模式
+
+| 模式 | 描述 | 自动处理 |
+|------|------|----------|
+| **frontmatter 错误** | 必填字段缺失、分隔符错误 | 模板预检 + 自动修复 |
+| **命名不规范** | name 不符合 kebab-case | 自动规范化函数 |
+| **描述质量不足** | 缺少 WHEN/WHAT 信息 | 增加占位符提示 |
+| **硬编码凭证** | SKILL 中包含密码/Token | 自动扫描标记 |
+| **注入风险** | exec/eval 等危险函数 | 提供安全替代方案 |
+| **资源缺失** | 引用不存在的脚本/文档 | 引用前文件存在性检查 |
+
+```bash
+# 分析失败模式
+python scripts/self_evolve.py analyze
+
+# 获取优化建议
+python scripts/self_evolve.py suggest
+
+# 根据历史数据自动生成新审核规则
+python scripts/self_evolve.py update-rules
+
+# 生成完整进化报告
+python scripts/self_evolve.py report
+```
+
+### 工作流
+
+```
+开发新 SKILL → 审核（可用性+安全性）→ 日志记录
+                                           ↓
+                                   持续监控失败模式
+                                           ↓
+                                   自动更新审核规则
+                                           ↓
+                                   模板自动优化迭代
+                                           ↓
+                                   降低失败率 → 质量提升
+```
 
 ## 使用流程
 
@@ -165,14 +282,19 @@ mkdir -p assets/
 # 添加模板、图标等资源
 ```
 
-### 步骤7：验证技能
+### 步骤7：审核与发布 — v2.0 新流程
 
-运行验证检查：
+使用 review.py 进行全量审核：
 
-- 检查 SKILL.md 存在
-- 验证 frontmatter 格式
-- 检查目录结构
-- 验证编码格式
+```bash
+# 全量审核（可用性 + 安全性）
+python scripts/review.py skills/your-skill-name
+
+# 审核通过后，记录日志
+python scripts/audit_log.py record skills/your-skill-name --result pass --caller "skill-builder"
+```
+
+**审核不通过时** — 修复问题后重新审核，失败案例会自动记录到审计日志。定期运行 `self_evolve.py report` 可查看质量趋势。
 
 ## 最佳实践
 
@@ -266,10 +388,30 @@ repos = api.list_repositories()
 ## 与其他技能的衔接
 
 ```
-skill-builder → vibe-coding → 需求分析 → 任务拆解 → 代码执行 → 测试验证 → 需求归档
-     ↑                                                                 ↓
-     └───────────────────── 技能开发完成 ────────────────────────────────┘
+skill-builder → 审核（quality + security）→ 审计日志记录 → 发布 skill
+     │                ↑
+     │                └─ security-audit（可复用检查规则）
+     │
+     ├──→ scripts-coding（日志规范参考）
+     │
+     └──→ self-evolution（持续迭代优化）
+                ↓
+         vibe-coding → 需求分析 → ... → 归档
 ```
+
+## 命令速查
+
+| 操作 | 命令 |
+|------|------|
+| 全量审核 | `python scripts/review.py <skill-dir>` |
+| 仅可用性审核 | `python scripts/review.py <skill-dir> --quality` |
+| 仅安全性审核 | `python scripts/review.py <skill-dir> --security` |
+| JSON 审核输出 | `python scripts/review.py <skill-dir> --json` |
+| 查看审核统计 | `python scripts/audit_log.py stats` |
+| 查看失败案例 | `python scripts/audit_log.py failures` |
+| 分析失败模式 | `python scripts/self_evolve.py analyze` |
+| 生成进化报告 | `python scripts/self_evolve.py report` |
+| 更新审核规则 | `python scripts/self_evolve.py update-rules` |
 
 ## 参考资源
 
