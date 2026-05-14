@@ -54,7 +54,7 @@ fi
 
 | 工具 | 用途 | 安装命令 |
 |------|------|----------|
-| `graphify` | 代码库结构分析 | `npx graphify install` |
+| `graphify` | 代码库结构分析（知识图谱） | `pip install graphifyy && graphify install` |
 
 **项目开发工具**（根据项目语言自动检测）：
 
@@ -213,7 +213,21 @@ python scripts/design.py --adopt --name "my-project" --version 1.0.0
    1. 编辑 docs/design.md，补充各章节描述
    2. 验证无误后提交
    3. 建议创建初始 tag：git tag -a v1.0.0 -m "初始版本"
-   4. 后续变更使用：--change
+   4. 运行代码探索：python ../code-exploration/scripts/explore.py --full
+   5. 后续变更使用：--change
+```
+
+**自动触发代码探索：**
+
+棕地领养后建议立即执行首次 `code-exploration` 全量扫描，将 graphify 输出提交到 Git 作为后续感知基准：
+
+```bash
+# 首次全量扫描
+python ../code-exploration/scripts/explore.py --full
+
+# 为初始版本打 tag（包含 graphify 快照）
+git tag -a v1.0.0 -m "初始版本 + graphify 探索快照"
+git push origin v1.0.0
 ```
 
 ### 模式 B（旧，向后兼容）：手动使用 graphify
@@ -226,14 +240,10 @@ mkdir -p docs/vibe-coding/changes/archive docs/vibe-coding/graphify
 
 ```bash
 # 安装 graphify（如需要）
-npx graphify install
+pip install graphifyy
 
-# 扫描代码库，生成多个分析文档
-npx graphify scan --output docs/vibe-coding/graphify/report.md
-npx graphify modules --output docs/vibe-coding/graphify/modules.md
-npx graphify apis --output docs/vibe-coding/graphify/apis.md
-npx graphify data-flows --output docs/vibe-coding/graphify/data-flows.md
-npx graphify tech-stack --output docs/vibe-coding/graphify/tech-stack.md
+# 全量知识图谱构建（统一方式）
+graphify .
 ```
 
 基于扫描结果手动创建 `{project-name}-design.md`：

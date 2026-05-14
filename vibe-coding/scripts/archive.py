@@ -14,7 +14,9 @@
 """
 
 import argparse
+import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
@@ -48,8 +50,62 @@ def git_push(project_root: Path) -> bool:
     return True
 
 
+def check_graphify_outdated(project_root: Path) -> bool:
+    """检查 graphify-out 是否落后于当前代码
+
+    比较最近包含 graphify-out 的 tag 与当前 src/ 的差异。
+    如果有变更，提示用户手动更新 graphify。
+
+    Returns:
+        True = graphify 需要更新, False = 已最新
+    """
+    # 查找最近包含 graphify-out 的 tag
+    ok, stdout, _ = run_git_command(
+        ["git", "tag", "-l", "--sort=-v:refname"],
+        project_root,
+    )
+    if not ok or not stdout:
+        return False
+
+    tags = [t.strip() for t in stdout.strip().split("\n") if t.strip()]
+    last_exploration_tag = None
+    for tag in tags:
+        tag_ok, tag_stdout, _ = run_git_command(
+            ["git", "ls-tree", "-d", tag, "--", "graphify-out"],
+            project_root,
+        )
+        if tag_ok and tag_stdout:
+            last_exploration_tag = tag
+            break
+
+    if not last_exploration_tag:
+        return False  # 从未有 graphify 缓存
+
+    # 比较源码是否有变更
+    code_dirs = ["src", "app", "lib", "cmd", "pkg", "source", "tests", "test"]
+    existing_dirs = [d for d in code_dirs if (project_root / d).exists()]
+    if not existing_dirs:
+        return False
+
+    ok, stdout, _ = run_git_command(
+        ["git", "diff", "--name-only", f"{last_exploration_tag}..HEAD", "--"] + existing_dirs,
+        project_root,
+    )
+    if ok and stdout:
+        changed_files = [line.strip() for line in stdout.split("\n") if line.strip()]
+        print(f"⚠️  graphify 图谱可能落后于代码变更")
+        print(f"   自 {last_exploration_tag} 以来，{len(changed_files)} 个文件有变更")
+        print(f"   建议先运行: python ../code-exploration/scripts/explore.py")
+        print()
+        return True
+    return False
+
+
 def create_tag(name: str, project_root: Path) -> bool:
     """创建标签（优先使用 design.md 版本号）"""
+    # 打标签前检查 graphify 是否最新
+    check_graphify_outdated(project_root)
+
     # 优先从中央 design.md 获取版本号
     docs_dir = project_root / "docs"
     design_version = None

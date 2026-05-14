@@ -1,8 +1,7 @@
-***
-
+---
 name: code-exploration
 description: "代码探索技能 - 在修改代码前必须先理解代码库结构、依赖关系和现有实现。通过系统化的探索方法和知识图谱分析，生成代码探索报告，快速建立对陌生代码的认知。"
--------------------------------------------------------------------------------------------
+---
 
 # Code Exploration — 代码探索
 
@@ -12,20 +11,48 @@ description: "代码探索技能 - 在修改代码前必须先理解代码库结
 
 **核心原则：** 不要删除你不理解的东西。先探索，再动手。
 
-参考 [graphify](https://github.com/safishamsi/graphify) 的设计理念，本技能支持将代码库转换为知识图谱，并生成代码探索报告。
+参考 [graphify](https://github.com/safishamsi/graphify) 的设计理念，本技能支持将代码库转换为知识图谱，并生成代码探索报告。所有 graphify 输出（`graphify-out/`）作为项目资产提交到 Git，以 tag 为粒度缓存，避免重复全量扫描。
+
+## Git 感知增量扫描
+
+每次运行 graphify 都会消耗 tokens 和计算资源。本技能提供 `scripts/explore.py` 工具，通过 Git 版本感知避免不必要的重复扫描：
+
+```
+explore.py 流程:
+  1. 查找最近包含 graphify-out/ 的 git tag
+  2. git diff tag..HEAD (仅 src/ app/ tests/ 等源码目录)
+     ├─ 无变更 → 跳过扫描，复用缓存
+     └─ 有变更 → graphify . --update (增量)
+  3. git add + commit graphify-out/
+  4. 输出精简摘要
+```
+
+```bash
+# 增量扫描（默认）：只扫描变化文件
+python scripts/explore.py
+
+# 强制全量重扫（首次运行或大版本需要）
+python scripts/explore.py --full
+
+# 仅查看缓存状态
+python scripts/explore.py --status
+
+# 安装 graphify Git hooks（推荐，自动增量更新）
+python scripts/explore.py --install-hooks
+```
+
+**节省效果：** 代码无变更时跳过 100% graphify 运行，小范围修改节省 80-95% token 消耗。
 
 ## 探索前检查
 
-在开始代码探索之前，先检查 graphify 是否已安装：
-
 ```bash
-# 检查 graphify 是否已安装
+# 使用 explore.py 一键检查并更新
+python scripts/explore.py
+
+# 或手动检查 graphify 是否已安装
 if ! command -v graphify &> /dev/null; then
     echo "错误: graphify 未安装"
-    echo "请运行以下命令之一安装 graphify:"
-    echo "1. uv tool install graphifyy && graphify install"
-    echo "2. pipx install graphifyy && graphify install"
-    echo "3. pip install graphifyy && graphify install"
+    echo "请运行: pip install graphifyy && graphify install"
     exit 1
 fi
 ```
@@ -34,11 +61,8 @@ fi
 
 ```powershell
 if (-not (Get-Command "graphify" -ErrorAction SilentlyContinue)) {
-    Write-Host "错误: graphify 未安装" -ForegroundColor Red
-    Write-Host "请运行以下命令之一安装 graphify:"
-    Write-Host "1. uv tool install graphifyy; graphify install"
-    Write-Host "2. pipx install graphifyy; graphify install"
-    Write-Host "3. pip install graphifyy; graphify install"
+    Write-Host "错误: graphify 未安装"
+    Write-Host "请运行: pip install graphifyy; graphify install"
     exit 1
 }
 ```
@@ -56,25 +80,22 @@ if (-not (Get-Command "graphify" -ErrorAction SilentlyContinue)) {
 ## 报告输出目录
 
 ```
-docs/
-└── {项目名称}-{version}-exploration/    ← 代码探索报告目录
-    ├── {项目名称}-exploration.md        ← 代码探索报告（主文档）
-    ├── graphify-out/                    ← graphify 知识图谱输出
-    │   ├── graph.html                  ← 交互式图谱
-    │   ├── graph.json                  ← 持久化图数据
-    │   └── GRAPH_REPORT.md             ← 图谱分析报告
-    └── modules/                         ← 模块详细分析
-        ├── {module-name}-analysis.md   ← 各模块分析文档
-        └── data-flows.md               ← 数据流分析
+项目根目录/
+└── graphify-out/                       ← graphify 知识图谱输出（Git 版本管理）
+    ├── graph.html                      ← 交互式图谱
+    ├── graph.json                      ← 持久化图数据
+    └── GRAPH_REPORT.md                 ← 图谱分析报告
 ```
+
+`graphify-out/` 作为项目资产提交到 Git，**每个 tag 即一份快照**。跨版本回退时只需 `git checkout` 即可恢复对应版本的图谱，无需重新 graphify。
 
 **命令：**
 
 ```bash
-# 创建报告目录
-mkdir -p docs/{项目名}-{version}-exploration
+# 一键更新（Git 感知增量扫描）
+python scripts/explore.py
 
-# 运行 graphify 生成知识图谱
+# 或手动全量生成
 graphify .
 ```
 
@@ -241,9 +262,12 @@ dist/
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ 步骤1：初始化报告目录                                        │
-│ - 创建 docs/{项目名}-{version}-exploration/                 │
-│ - 运行 graphify . 生成知识图谱                                │
+│ 步骤1：Git 感知增量扫描                                     │
+│ - python scripts/explore.py                                 │
+│   ├─ 有缓存+无变更 → 跳过，复用                              │
+│   ├─ 有缓存+有变更 → graphify . --update (增量)              │
+│   └─ 无缓存 → graphify . (全量)                             │
+│ - git add + commit graphify-out/                            │
 └─────────────────────────────────────────────────────────────┘
                               ↓
 ┌─────────────────────────────────────────────────────────────┐
@@ -401,7 +425,10 @@ dist/
 
 | 目标     | 命令                                          |
 | ------ | ------------------------------------------- |
-| 创建报告目录 | `mkdir -p docs/{项目名}-{version}-exploration` |
+| Git 感知扫描 | `python scripts/explore.py`                |
+| 强制全量扫描 | `python scripts/explore.py --full`         |
+| 查看缓存状态 | `python scripts/explore.py --status`       |
+| 安装 Git hooks | `python scripts/explore.py --install-hooks` |
 | 生成知识图谱 | `graphify .`                                |
 | 项目结构   | `ls -la && find . -type d -maxdepth 3`      |
 | 搜索函数   | `rg -n "^def \w+\(" --type py`              |
@@ -426,17 +453,32 @@ dist/
 ## graphify 安装与使用
 
 ```bash
-# 使用 uv 安装（推荐）
+# 使用 pip 安装（推荐）
+pip install graphifyy && graphify install
+
+# 或使用 uv
 uv tool install graphifyy && graphify install
 
 # 或使用 pipx
 pipx install graphifyy && graphify install
-
-# 或使用 pip
-pip install graphifyy && graphify install
 ```
 
 **注意：** PyPI 上官方包名为 `graphifyy`，其他名为 `graphify*` 的包与此项目无关。
+
+### 安装 Git hooks（可选，推荐）
+
+```bash
+# 安装后，commit/checkout 时自动增量更新图谱（AST 部分零成本）
+graphify hook install
+
+# 或通过 explore.py 一键安装
+python scripts/explore.py --install-hooks
+```
+
+hooks 安装后：
+- **post-commit**: 每次提交后自动运行 graphify 增量更新
+- **post-checkout**: 切换分支后自动增量更新
+- **merge driver**: 多人并行提交 graph.json 时自动合并，避免冲突
 
 ## 与其他技能的衔接
 
