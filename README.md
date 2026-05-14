@@ -27,10 +27,11 @@
 
 | 技能 | 用途 | 说明 |
 |------|------|------|
-| `code-exploration` | 代码探索 | 修改代码前先理解代码库 |
+| `code-exploration` | 代码探索 | 修改代码前先理解代码库，Git 感知增量扫描 |
 | `vibe-coding` | AI编程工作流 | 阶段0 初始化 + 五阶段变更循环 |
 | `scripts-coding` | 脚本编程规范 | 规范脚本开发流程 |
-| `skill-builder` | 技能构建器 | 创建和验证 Agent Skills |
+| `skill-builder` | 技能构建器 v2.0 | 创建和验证 Agent Skills，含审核 + 日志 + 自我进化 |
+| `security-audit` | 安全审计 | 漏洞扫描与风险评估，含审计方法论和漏洞分类 |
 
 ## 项目结构
 
@@ -41,7 +42,9 @@ coding-skills/
 ├── LICENSE                     # 许可证
 
 ├── code-exploration/           # 代码探索子技能
-│   └── SKILL.md                # 代码探索指南
+│   ├── SKILL.md                # 代码探索指南
+│   └── scripts/
+│       └── explore.py          # Git 感知增量扫描（新增）
 
 ├── vibe-coding/                # AI编程工作流（核心）
 │   ├── SKILL.md                # 主入口：阶段0 + 五阶段变更循环
@@ -68,13 +71,20 @@ coding-skills/
 │   └── references/             # 参考文档
 │       └── script-guidelines.md
 
-├── skill-builder/              # 技能构建器
+├── skill-builder/              # 技能构建器 v2.0
 │   ├── SKILL.md                # 技能构建指南
 │   ├── scripts/                # 辅助脚本
+│   │   ├── review.py           # 审核引擎（可用性 + 安全性）
+│   │   ├── audit_log.py        # 审计日志系统
+│   │   └── self_evolve.py      # 自我进化模块
 │   ├── references/             # 参考文档
 │   └── assets/                 # 模板资源
 
 └── security-audit/             # 安全审计
+    ├── SKILL.md                # 安全审计指南
+    └── references/
+        ├── audit-methodology.md      # 审计方法论文档
+        └── vulnerability-taxonomy.md # 漏洞分类参考
 ```
 
 ## 快速开始
@@ -173,6 +183,7 @@ cp scripts-coding/templates/python_script_template.py scripts/my-script.py
 - 使用 graphify 生成知识图谱
 - 生成代码探索报告
 - 支持多种编程语言（Python、JavaScript/TypeScript、Go、Rust 等）
+- **Git 感知增量扫描** — 以 tag 为缓存粒度，避免重复全量扫描，降低 token 消耗
 
 **使用时机：**
 - 开始新任务时
@@ -215,30 +226,73 @@ cp scripts-coding/templates/python_script_template.py scripts/my-script.py
 - ERROR 级别日志自动包含执行信息和堆栈跟踪
 - 日志目录自动检测，支持 Agent 记忆系统集成
 
-### skill-builder - 技能构建器
+### skill-builder - 技能构建器 v2.0
 
 **核心功能：**
 - 技能发现与需求分析
 - 技能类型选择（simple、api-wrapper、document-processor、dev-workflow、research-synthesizer、code-exploration）
 - 目录结构初始化（SKILL.md、scripts/、references/、assets/）
 - SKILL.md 模板生成，包含标准 frontmatter 格式
-- 技能验证与质量检查
+- **可用性审核** — 格式正确性、描述清晰度、业务流程连贯性、可执行性
+- **安全性审核** — 代码注入、凭证泄露、路径穿越、SSRF、权限等 12+ 项检查
+- **审计日志系统** — 统一记录创建/审核/调用日志，含调用统计和失败案例
+- **自我进化能力** — 基于日志自动分析失败模式、优化模板、更新审核规则
 
-**工作流程：**
-1. **Discovery** - 理解技能需求和触发条件
-2. **Archetype Selection** - 选择技能类型
-3. **Initialization** - 创建目录结构
-4. **Customization** - 编写技能内容
-5. **Validation** - 验证技能结构
+**工作流程（v2.0）：**
+```
+阶段1: Discovery → 阶段2: Archetype Selection → 阶段3: Initialization
+    → 阶段4: Customization → 阶段5: Review       ← v2.0 新增审核阶段
+    → 阶段6: Publish（日志记录）
+    ↓
+持续: Self-Evolution（失败分析 → 规则更新 → 模板优化）
+```
 
-**目录结构：**
+**审核脚本用法：**
+
+```bash
+# 全量审核（可用性 + 安全性）
+python scripts/review.py <skill-dir>
+
+# 单独审核
+python scripts/review.py <skill-dir> --quality    # 仅可用性
+python scripts/review.py <skill-dir> --security   # 仅安全性
+python scripts/review.py <skill-dir> --json       # JSON 输出
+
+# 审计日志
+python scripts/audit_log.py stats                 # 查看统计
+python scripts/audit_log.py failures              # 查看失败案例
+python scripts/audit_log.py record <skill-dir> --result pass
+
+# 自我进化
+python scripts/self_evolve.py analyze             # 分析失败模式
+python scripts/self_evolve.py suggest             # 优化建议
+python scripts/self_evolve.py report              # 进化报告
+python scripts/self_evolve.py update-rules        # 更新审核规则
+```
+
+**目录结构（v2.0）：**
 ```
 skill-builder/
 ├── SKILL.md                # 技能构建指南
-├── scripts/                # 辅助脚本
+├── scripts/
+│   ├── review.py           # 审核引擎
+│   ├── audit_log.py        # 审计日志系统
+│   └── self_evolve.py      # 自我进化模块
 ├── references/             # 参考文档
 └── assets/                 # 模板资源
 ```
+
+### security-audit - 安全审计
+
+**核心功能：**
+- 代码库安全漏洞扫描与风险评估
+- 识别中等严重度及以上的已确认漏洞
+- 仅报告具备可论证的端到端利用路径的漏洞
+- 提供完整的审计方法论和漏洞分类参考
+
+**参考文档：**
+- `references/audit-methodology.md` — 安全审计方法论
+- `references/vulnerability-taxonomy.md` — 漏洞分类与严重度定义
 
 ## 开发原则
 
@@ -275,6 +329,19 @@ skill-builder/
 - [OpenSpec](https://github.com/Fission-AI/OpenSpec) — 轻量级 AI 规格文档框架
 
 ## Changelog
+
+### v2.0.0 (2026-05-14)
+
+**skill-builder 重大升级：**
+- **审核引擎** `scripts/review.py` — 新增可用性审核（格式/描述/流程/可执行性）+ 安全性审核（12+ 检查模式）
+- **审计日志系统** `scripts/audit_log.py` — 统一记录创建/审核/调用日志，含统计和失败案例复盘
+- **自我进化模块** `scripts/self_evolve.py` — 基于日志自动分析失败模式、优化模板、更新审核规则
+- SKILL.md 更新为 6 阶段工作流（新增 Review + Publish 阶段）
+
+**其他改进：**
+- `code-exploration/scripts/explore.py` 新增 — Git 感知增量扫描，以 tag 为缓存粒度避免重复全量扫描
+- `security-audit` front matter 修复、`references/` 新增审计方法论和漏洞分类参考文档
+- 所有 SKILL.md front matter 统一为标准 `---` YAML 格式
 
 ### v0.8.0 (2026-05-13)
 
