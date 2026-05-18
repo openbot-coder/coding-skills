@@ -1,7 +1,8 @@
 ---
 version: 0.6.0
 name: vibe-coding
-description: "轻量级 AI 编程技能，管理完整的开发全生命周期。当开始任何开发任务、功能实现或 Bug 修复时使用。五阶段工作流：需求分析 → 任务拆解 → 代码执行 → 测试验证 → 需求归档。"
+design-pattern: pipeline
+description: "轻量级 AI 编程技能，管理完整的开发全生命周期。当开始任何开发任务、功能实现或 Bug 修复时使用，或用户说「开始开发」「加功能」「修 bug」「写代码」时触发。五阶段工作流：需求分析 → 任务拆解 → 代码执行 → 测试验证 → 需求归档。"
 ---
 
 # Vibe Coding
@@ -11,10 +12,12 @@ description: "轻量级 AI 编程技能，管理完整的开发全生命周期�
 **所有开发任务首先进入这里。** 识别当前阶段并路由到适当的操作。
 
 > **参考文档**：
-> - [开发原则](../references/PRINCIPLES.md) — 核心原则和工程原则
-> - [反模式](../references/ANTI-PATTERNS.md) — 反模式、借口反驳、警告信号
-> - [Git规则](../references/GIT-RULES.md) — 分支策略和提交规范
-> - [架构设计原则](../references/ARCHITECTURE-PRINCIPLES.md) — 术语、原则、检查点
+> - [开发原则](./references/PRINCIPLES.md) — 核心原则和工程原则
+> - [反模式](./references/ANTI-PATTERNS.md) — 反模式、借口反驳、警告信号
+> - [Git规则](./references/GIT-RULES.md) — 分支策略和提交规范
+> - [架构设计原则](./references/ARCHITECTURE-PRINCIPLES.md) — 术语、原则、检查点
+> - [分支策略](./references/branching-strategy.md) — 分支结构和管理策略
+> - [工作流指南](./references/workflow-guide.md) — 五阶段工作流详解
 
 ## 防跑偏检查
 
