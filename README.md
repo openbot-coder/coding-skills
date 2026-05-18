@@ -53,14 +53,14 @@
 │   │   ├── common.py           # 通用工具函数
 │   │   ├── changelog.py        # Changelog 管理
 │   │   ├── plans.py            # 阶段2：任务拆解
-│   │   ├── execute.py          # 阶段3：代码执行（TDD）
+│   │   ├── execute.py          # 阶段3：代码执行（SDD）
 │   │   ├── verify.py           # 阶段4：测试验证
 │   │   └── archive.py          # 阶段5：需求归档
 │   ├── initialize/             # 项目初始化子技能
 │   ├── writing-design/         # 需求调研子技能
 │   ├── review-design/          # 设计审查子技能
 │   ├── task-breakdown/         # 任务拆解子技能
-│   ├── test-driven-development/ # TDD子技能
+│   ├── sdd-unit-development/    # SDD子技能
 │   └── debugging-and-verification/ # 验证调试子技能
 
 ├── scripts-coding/             # 脚本编程规范
@@ -211,7 +211,7 @@ cp scripts-coding/templates/python_script_template.py scripts/my-script.py
 - `writing-design` - 需求调研
 - `review-design` - 设计审查（先完整读取 design.md，再逐章评审）
 - `task-breakdown` - 任务拆解
-- `test-driven-development` - TDD开发
+- `sdd-unit-development` - SDD规范驱动开发
 - `debugging-and-verification` - 验证调试
 
 ### scripts-coding - 脚本编程规范
