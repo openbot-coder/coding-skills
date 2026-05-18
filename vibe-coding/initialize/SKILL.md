@@ -1,7 +1,7 @@
 ---
 version: 0.3.0
 name: initialize
-description: "项目初始化子技能。首次使用时判断项目类型（绿地/棕地），初始化后标记，已初始化项目跳过检查以节省 token。"
+description: "判断项目类型（绿地/棕地）并初始化开发环境。当首次在项目中启动开发流程时使用。已初始化项目跳过检查以节省 token。"
 ---
 
 # Initialize — 项目初始化

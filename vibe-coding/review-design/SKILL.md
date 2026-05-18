@@ -260,7 +260,7 @@ writing-design → review-design → 任务拆解 → 代码执行 → 测试验
 ```
 
 **任务拆解阶段操作：**
-1. 运行 `python scripts/plans.py --name <变更名称>` 创建计划
+1. 运行 `python ../scripts/plans.py --name <变更名称>` 创建计划
 2. 基于通过审查的设计制定实施计划
 3. 补充架构方案、实施步骤、依赖、风险
 

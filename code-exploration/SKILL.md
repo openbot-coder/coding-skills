@@ -1,6 +1,6 @@
 ---
 name: code-exploration
-description: "代码探索技能 - 使用 graphify 增量探索。在修改代码前理解代码库结构。"
+description: "代码探索技能 - 使用 graphify 增量探索。当需要理解新代码库结构、搜索代码定义和引用、探索项目架构时使用。在修改代码前必须先理解代码库。"
 ---
 
 # Code Exploration — 代码探索
