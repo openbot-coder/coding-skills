@@ -1,7 +1,7 @@
 ---
 version: 0.3.0
 name: writing-design
-description: "在创建设计文档之前必须使用 - 探索用户意图、需求和设计方案。通过自然的协作对话，帮助将想法转化为完整的设计内容。"
+description: "探索用户意图、需求和设计方案。当需要将模糊想法转化为完整设计文档时使用。通过自然的协作对话帮助将想法转化为完整的设计内容。在创建设计文档之前必须使用。"
 ---
 
 # 需求调研与访谈
@@ -198,7 +198,7 @@ writing-design → review-design → 任务拆解 → 代码执行 → 测试验
 ```
 
 **操作：**
-1. 运行 `python scripts/design.py --name <变更名称>` 创建设计目录
+1. 运行 `python ../scripts/design.py --name <变更名称>` 创建设计目录
 2. 创建 `{name}-survey-records.md` 开始记录调研
 3. 将需求要点和设计方案填入 `{name}-design.md`
 4. 完成调研和设计后，进入 review-design 阶段

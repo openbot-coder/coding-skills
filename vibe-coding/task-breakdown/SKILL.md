@@ -1,7 +1,7 @@
 ---
 version: 0.1.0
 name: task-breakdown
-description: "任务拆解子技能 - 将设计文档拆解为可执行的任务清单。专门用于 vibe-coding 阶段2，避免与 Agent 的通用 plan 技能冲突。"
+description: "将设计文档拆解并创建为可执行的任务清单。当设计方案已批准、需要制定实施计划时使用。专门用于 vibe-coding 阶段2，避免与 Agent 的通用 plan 技能冲突。"
 ---
 
 # 任务拆解（Task Breakdown）
@@ -142,9 +142,9 @@ writing-design → review-design → task-breakdown → execute → verify → a
 
 **task-breakdown 完成后的操作**：
 
-1. 运行 `python scripts/plans.py --name <变更名称>` 确认任务清单
+1. 运行 `python ../scripts/plans.py --name <变更名称>` 确认任务清单
 2. 检查 `{name}-progress.md` 中的任务清单是否完整
-3. 确认无误后，进入阶段3：`python scripts/execute.py --name <变更名称> --action list`
+3. 确认无误后，进入阶段3：`python ../scripts/execute.py --name <变更名称> --action list`
 
 ## 关键原则
 

@@ -22,6 +22,7 @@
 - **跨平台**：Windows、macOS、Linux
 - **模块化**：多个独立技能，按需使用
 - **AI 友好**：SKILL.md 作为路由器，AI 助手加载后自动引导
+- **自动审核**：skill-builder 提供可用性 + 安全性双重审核机制
 
 ## 核心技能
 
@@ -29,30 +30,28 @@
 |------|------|------|
 | `code-exploration` | 代码探索 | 修改代码前先理解代码库，Git 感知增量扫描 |
 | `vibe-coding` | AI编程工作流 | 阶段0 初始化 + 五阶段变更循环 |
-| `scripts-coding` | 脚本编程规范 | 规范脚本开发流程 |
+| `scripts-coding` | 脚本编程规范 | 规范脚本开发流程与模板 |
 | `skill-builder` | 技能构建器 v2.0 | 创建和验证 Agent Skills，含审核 + 日志 + 自我进化 |
 | `security-audit` | 安全审计 | 漏洞扫描与风险评估，含审计方法论和漏洞分类 |
 
 ## 项目结构
 
 ```
-coding-skills/
-├── SKILL.md                    # 主入口：技能路由器
 ├── README.md                   # 项目文档
 ├── LICENSE                     # 许可证
 
 ├── code-exploration/           # 代码探索子技能
 │   ├── SKILL.md                # 代码探索指南
 │   └── scripts/
-│       └── explore.py          # Git 感知增量扫描（新增）
+│       └── explore.py          # Git 感知增量扫描
 
 ├── vibe-coding/                # AI编程工作流（核心）
 │   ├── SKILL.md                # 主入口：阶段0 + 五阶段变更循环
 │   ├── README.md               # vibe-coding 文档
 │   ├── scripts/                # 核心脚本工具
-│   │   ├── design.py           # 阶段0：初始化(--init/--adopt) + 阶段1：需求分析(--change/--rollback)
-│   │   ├── common.py           # 通用工具：find_project_root / detect_project_info 等
-│   │   ├── changelog.py        # Changelog 管理：版本标记、状态更新
+│   │   ├── design.py           # 阶段0：初始化 + 阶段1：需求分析
+│   │   ├── common.py           # 通用工具函数
+│   │   ├── changelog.py        # Changelog 管理
 │   │   ├── plans.py            # 阶段2：任务拆解
 │   │   ├── execute.py          # 阶段3：代码执行（TDD）
 │   │   ├── verify.py           # 阶段4：测试验证
@@ -69,7 +68,6 @@ coding-skills/
 │   ├── templates/              # 脚本模板
 │   │   └── python_script_template.py
 │   └── references/             # 参考文档
-│       └── script-guidelines.md
 
 ├── skill-builder/              # 技能构建器 v2.0
 │   ├── SKILL.md                # 技能构建指南
@@ -329,6 +327,22 @@ skill-builder/
 - [OpenSpec](https://github.com/Fission-AI/OpenSpec) — 轻量级 AI 规格文档框架
 
 ## Changelog
+
+### v2.1.0 (2026-05-18)
+
+**SKILL 全量审核与修复：**
+- 使用 `skill-builder/scripts/review.py` 对全部 11 个 SKILL 进行可用性 + 安全性审核
+- **description 质量修复**：9 个技能的 description 新增触发场景词（"当...时使用"）和功能动词，通过审核
+- **脚本路径修复**：3 个 vibe-coding 子技能的脚本引用路径 `scripts/xxx.py` → `../scripts/xxx.py`
+- 安全告警全部确认为误报（文档举例、正常交互脚本），无需修复
+
+**SKILL.md 结构优化：**
+- SKILL.md 文件结构改为子技能独立目录（`brainstorming/`、`writing-prd-and-design/` 等），替代旧的 `workflows/` 扁平结构
+- 每个子技能含独立 `SKILL.md` + 可选 `references/` 子目录
+- `python-async-patterns.md` 移至根目录作为通用参考
+
+**Bug 修复：**
+- 修复 SKILL.md UTF-8 BOM（byte order mark）导致导入报错"缺少必填字段 name"的问题
 
 ### v2.0.0 (2026-05-14)
 
