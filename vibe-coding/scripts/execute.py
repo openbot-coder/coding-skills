@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""vibe-coding 阶段3：代码执行（采用 TDD 模式）
+"""vibe-coding 阶段3：代码执行（采用 SDD 模式）
 
 用法：
     python scripts/execute.py --name add-dark-mode --action list
@@ -9,7 +9,7 @@
 
 功能：
     - 每个子任务完成时自动提交 Git
-    - TDD 模式指导
+    - SDD 模式指导（规范 → 实现 → 统一测试）
     - 更新 progress.md 任务状态
 """
 
@@ -82,7 +82,7 @@ def list_tasks(name: str, changes_dir: Path) -> int:
     print(f"📋 任务清单：{name}")
     print(f"   进度：{done_count}/{total} 完成，{pending_count} 待执行")
     print()
-    print(f"🔄 采用 TDD 模式：红 → 绿 → 重构")
+    print(f"🔄 采用 SDD 模式：写规范 → 实现 → 统一测试")
 
     for task in tasks:
         icon = get_status_icon(task["status"])
@@ -97,13 +97,16 @@ def list_tasks(name: str, changes_dir: Path) -> int:
     elif pending_count == 0 and done_count > 0:
         print()
         print(f"🎉 所有任务已完成！下一步：")
+        print(f"   为所有任务编写单元测试（覆盖率100%）：")
+        print(f"   参考：./sdd-unit-development/SKILL.md")
+        print(f"   完成后运行：")
         print(f"   python scripts/verify.py --name {name}")
 
     return 0
 
 
 def start_task(name: str, task_id: str, changes_dir: Path) -> int:
-    """开始执行任务（提示 TDD 流程）"""
+    """开始执行任务（提示 SDD 流程）"""
     progress_file = changes_dir / f"{name}-progress.md"
 
     if not progress_file.exists():
@@ -113,31 +116,24 @@ def start_task(name: str, task_id: str, changes_dir: Path) -> int:
     print(f"🚀 开始执行：任务{task_id}")
     print()
     print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print(f"🔴 TDD 模式 - 红：编写失败测试")
+    print(f"📐 SDD 模式 - 第1步：写规范（Spec）")
     print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print(f"   1. 编写一个最小测试展示应该发生什么")
-    print(f"   2. 测试用例必须覆盖：正例 + 反例 + 边界值")
-    print(f"   3. 运行测试，确认失败（而非报错）")
+    print(f"   1. 定义接口签名、行为约定、边界条件")
+    print(f"   2. 记录到任务详情中")
     print()
     print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print(f"🟢 TDD 模式 - 绿：最少代码")
+    print(f"⚙️  SDD 模式 - 第2步：实现（Implement）")
     print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print(f"   1. 编写最简单的代码让测试通过")
-    print(f"   2. 不要添加功能、重构或「改进」超出测试范围的部分")
-    print(f"   3. 运行测试，确认全部通过")
+    print(f"   1. 按规范编写生产代码")
+    print(f"   2. 不要写测试（统一在测试阶段添加）")
+    print(f"   3. 只实现规范中定义的内容")
     print()
     print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print(f"🔵 TDD 模式 - 重构：清理")
+    print(f"📋 完成说明")
     print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print(f"   1. 只在绿色之后重构")
-    print(f"   2. 移除重复、改善命名、提取辅助函数")
-    print(f"   3. 保持测试绿色，不要添加行为")
-    print()
-    print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-    print(f"📋 测试覆盖率要求：100%")
-    print(f"   未覆盖行必须以 # UNCOVERED: [原因] 标注")
-    print(f"   无法覆盖的代码需用户批准")
-    print(f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print(f"   - 标记完成后自动 Git 提交")
+    print(f"   - 继续执行下一个任务")
+    print(f"   - 所有任务完成后再统一编写单元测试（覆盖率100%）")
     print()
     print(f"   完成后运行：")
     print(f"   python scripts/execute.py --name {name} --task {task_id} --action done")
@@ -149,7 +145,7 @@ def start_task(name: str, task_id: str, changes_dir: Path) -> int:
 
 
 def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
-    """将任务标记为完成（TDD 合规检查）"""
+    """将任务标记为完成（SDD 合规检查）"""
     progress_file = changes_dir / f"{name}-progress.md"
 
     if not progress_file.exists():
@@ -163,29 +159,28 @@ def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
 
     print()
     print("=" * 60)
-    print("📋 TDD 合规检查")
+    print("📋 SDD 合规检查")
     print("=" * 60)
     print()
-    print("请确认以下 TDD 流程已正确执行：")
+    print("请确认以下 SDD 流程已正确执行：")
     print()
-    print("  🔴 红：是否先编写了失败的测试？")
-    print("  🟢 绿：是否编写了最少代码使测试通过？")
-    print("  🔵 重构：是否在绿色后进行了代码清理？")
-    print("  📊 覆盖率：测试覆盖率是否达到 100%？")
+    print("  📐 规范：是否先定义了接口签名和行为约定？")
+    print("  ⚙️  实现：是否按规范编写了生产代码？")
+    print("  📝 暂存：是否准备提交当前任务？")
     print()
+    print("  ⚠️  注意：测试将统一在所有任务完成后编写")
 
-    tdd_confirmed = input("确认已遵循 TDD 流程？(y/N): ").strip().lower()
-    if tdd_confirmed != 'y':
+    sdd_confirmed = input("确认已遵循 SDD 流程？(y/N): ").strip().lower()
+    if sdd_confirmed != 'y':
         print()
-        print("❌ TDD 合规检查未通过")
-        print("   请先完成 TDD 流程再标记任务为完成")
+        print("❌ SDD 合规检查未通过")
+        print("   请先完成 SDD 流程再标记任务为完成")
         print()
         print("📋 正确流程：")
-        print("   1. [红] 编写失败测试")
-        print("   2. [绿] 编写最少代码通过测试")
-        print("   3. [重构] 清理代码")
+        print("   1. [规范] 定义接口和行为约定")
+        print("   2. [实现] 按规范编写生产代码")
         print()
-        print("   参考：./test-driven-development/SKILL.md")
+        print("   参考：./sdd-unit-development/SKILL.md")
         return 1
 
     updated = update_task_status(progress_file, task_id, "done")
@@ -202,15 +197,9 @@ def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
     git_commit_on_complete(task_id, task_name, changes_dir)
     print()
 
-    print(f"📌 记录 TDD 循环次数到 {name}-progress.md：")
-    print(f"   - 红：__ 次")
-    print(f"   - 绿：__ 次")
-    print(f"   - 重构：__ 次")
-    print()
-    print(f"📌 记录测试用例数到 {name}-progress.md：")
-    print(f"   - 正例：__ 个")
-    print(f"   - 反例：__ 个")
-    print(f"   - 边界值：__ 个")
+    print(f"📌 记录实现信息到 {name}-progress.md：")
+    print(f"   - 规范定义的接口数：__ 个")
+    print(f"   - 实现的代码行数：__ 行")
 
     progress_content = progress_file.read_text(encoding="utf-8")
     tasks = parse_tasks_from_status(progress_content)
@@ -231,7 +220,11 @@ def complete_task(name: str, task_id: str, changes_dir: Path) -> int:
         print(f"   git add . && git commit -m \"chore: 完成阶段3 代码执行 {name}\"")
         print(f"   git push origin develop")
         print()
-        print(f"   下一步：python scripts/verify.py --name {name}")
+        print(f"📌 下一步：统一编写单元测试")
+        print(f"   为所有已实现的功能编写测试用例（正例+反例+边界值）")
+        print(f"   目标：单元测试覆盖率 100%")
+        print(f"   完成后运行：")
+        print(f"   python scripts/verify.py --name {name}")
 
     return 0
 
@@ -270,7 +263,7 @@ def skip_task(name: str, task_id: str, changes_dir: Path) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="vibe-coding 阶段3：执行任务管理（采用 TDD 模式）",
+        description="vibe-coding 阶段3：执行任务管理（采用 SDD 模式）",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="示例：\n"
                "  python scripts/execute.py --name add-dark-mode --action list\n"

@@ -170,7 +170,7 @@ def create_plans(name: str, changes_dir: Path) -> int:
 
     print(f"📋 下一步：")
     print(f"   1. 编辑 {name}-progress.md 中阶段2的计划概述")
-    print(f"   2. 填充任务清单（每个任务 10~20 个功能点）")
+    print(f"   2. 填充任务清单（每个任务约 10 个功能点）")
     print(f"   3. 填充任务详情（功能列表、验证方式）")
     print(f"   4. 计划完整后，运行：")
     print(f"      python scripts/execute.py --name {name} --action list")

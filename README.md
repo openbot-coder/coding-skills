@@ -7,13 +7,14 @@
 `coding-skills` 是一套轻量级 AI 编程工作流，核心理念：**设计文档是项目的唯一真相源（SSOT），AI 凭此可重建整个项目**。
 
 ```
-阶段0: 项目初始化 → design.md 就绪 → 阶段1-5 变更循环（每需求一次）
+阶段0: 项目初始化 → design.md 就绪 → 阶段1-6 变更循环（每需求一次）
 
 阶段0: 项目初始化（仅一次）
   绿地 --init → 创建完整骨架
   棕地 --adopt → 扫描已有代码
 
-阶段1: 需求分析 → 阶段2: 任务拆解 → 阶段3: 代码执行 → 阶段4: 测试验证 → 阶段5: 需求归档
+阶段1: 需求分析 → 阶段2: 任务拆解 → 阶段3: SDD 代码执行 → 阶段3.5: 统一单元测试（覆盖率100%）
+  → 阶段4: 集成测试验证 → 阶段5: 需求归档
 ```
 
 ## 特点
@@ -29,7 +30,7 @@
 | 技能 | 用途 | 说明 |
 |------|------|------|
 | `code-exploration` | 代码探索 | 修改代码前先理解代码库，Git 感知增量扫描 |
-| `vibe-coding` | AI编程工作流 | 阶段0 初始化 + 五阶段变更循环 |
+| `vibe-coding` | AI编程工作流 | SDD 规范驱动开发，先实现后统一测试（覆盖率100%） |
 | `scripts-coding` | 脚本编程规范 | 规范脚本开发流程与模板 |
 | `skill-builder` | 技能构建器 v2.0 | 创建和验证 Agent Skills，含审核 + 日志 + 自我进化 |
 | `security-audit` | 安全审计 | 漏洞扫描与风险评估，含审计方法论和漏洞分类 |
@@ -45,22 +46,30 @@
 │   └── scripts/
 │       └── explore.py          # Git 感知增量扫描
 
-├── vibe-coding/                # AI编程工作流（核心）
-│   ├── SKILL.md                # 主入口：阶段0 + 五阶段变更循环
+├── vibe-coding/                # AI编程工作流（核心，SDD模式）
+│   ├── SKILL.md                # 主入口：阶段0 + 六阶段工作流
 │   ├── README.md               # vibe-coding 文档
 │   ├── scripts/                # 核心脚本工具
 │   │   ├── design.py           # 阶段0：初始化 + 阶段1：需求分析
 │   │   ├── common.py           # 通用工具函数
 │   │   ├── changelog.py        # Changelog 管理
 │   │   ├── plans.py            # 阶段2：任务拆解
-│   │   ├── execute.py          # 阶段3：代码执行（TDD）
-│   │   ├── verify.py           # 阶段4：测试验证
-│   │   └── archive.py          # 阶段5：需求归档
+│   │   ├── execute.py          # 阶段3：SDD 代码执行
+│   │   ├── verify.py           # 阶段4：集成测试验证
+│   │   ├── archive.py          # 阶段5：需求归档
+│   │   └── tools_check.py      # 工具检查脚本
+│   ├── references/             # 参考文档
+│   │   ├── ANTI-PATTERNS.md
+│   │   ├── ARCHITECTURE-CHECKLIST.md
+│   │   ├── GIT-RULES.md
+│   │   ├── principles.md
+│   │   ├── workflow-guide.md
+│   │   └── ...（更多参考）
 │   ├── initialize/             # 项目初始化子技能
 │   ├── writing-design/         # 需求调研子技能
 │   ├── review-design/          # 设计审查子技能
-│   ├── task-breakdown/         # 任务拆解子技能
-│   ├── test-driven-development/ # TDD子技能
+│   ├── task-breakdown/         # 任务拆解子技能（约10功能点）
+│   ├── sdd-unit-development/   # SDD 规范驱动开发（替代 TDD）
 │   └── debugging-and-verification/ # 验证调试子技能
 
 ├── scripts-coding/             # 脚本编程规范
@@ -76,6 +85,11 @@
 │   │   ├── audit_log.py        # 审计日志系统
 │   │   └── self_evolve.py      # 自我进化模块
 │   ├── references/             # 参考文档
+│   │   ├── api-wrapper-guide.md
+│   │   ├── design-patterns-guide.md
+│   │   ├── dev-workflow-guide.md
+│   │   ├── document-processor-guide.md
+│   │   └── research-synthesizer-guide.md
 │   └── assets/                 # 模板资源
 
 └── security-audit/             # 安全审计
@@ -134,20 +148,42 @@ python scripts/plans.py --name add-dark-mode
 
 编辑 `{name}-progress.md`，填充任务清单。
 
-#### 阶段3：代码执行
+#### 阶段3：SDD 代码执行
+
+**SDD（规范驱动开发）流程：** 逐个任务实现，先写规范再实现，完成后统一测试。
 
 ```bash
 # 查看任务
 python scripts/execute.py --name add-dark-mode --action list
 
-# 开始任务
+# 开始任务（遵循 SDD：写规范 → 实现 → 标记完成）
 python scripts/execute.py --name add-dark-mode --task T1 --action start
 
 # 完成任务
 python scripts/execute.py --name add-dark-mode --task T1 --action done
 ```
 
-#### 阶段4：测试验证
+**SDD 每个任务：**
+1. **写规范** — 定义接口签名、行为约定、边界条件
+2. **实现** — 按规范编写生产代码（不写测试）
+3. **标记完成** — 暂存代码，继续下一个任务
+
+#### 阶段3.5：统一单元测试
+
+所有任务实现完成后，编写完整的单元测试：
+
+```bash
+# 为所有功能点编写测试（正例 + 反例 + 边界值）
+# 运行测试，确保覆盖率 100%
+pytest tests/ -v --cov=src --cov-report=term-missing
+```
+
+**测试要求：**
+- 覆盖 **正例 + 反例 + 边界值** 三个维度
+- 单元测试覆盖率目标：**100%**
+- 未覆盖行必须以 `# UNCOVERED: [原因]` 标注
+
+#### 阶段4：集成测试验证
 
 ```bash
 python scripts/verify.py --name add-dark-mode --action start
@@ -191,15 +227,16 @@ cp scripts-coding/templates/python_script_template.py scripts/my-script.py
 
 ### vibe-coding - AI编程工作流
 
-**整体流程：**
+**整体流程（SDD 规范驱动开发）：**
 
 | 阶段 | 脚本 | 输入 | 输出 |
 |------|------|------|------|
 | **0. 项目初始化** | `design.py` | `--init` / `--adopt` | `docs/design.md` + `docs/changelog.md` + 项目骨架 |
 | **1. 需求分析** | `design.py` | `--change` / `--name` | design.md 更新 / `{name}-design.md` |
-| **2. 任务拆解** | `plans.py` | design.md | `{name}-progress.md` |
-| **3. 代码执行** | `execute.py` | `{name}-progress.md` | 更新任务状态 |
-| **4. 测试验证** | `verify.py` | `{name}-progress.md` | 验证结果 |
+| **2. 任务拆解** | `plans.py` | design.md | `{name}-progress.md`（每个任务约10个功能点） |
+| **3. SDD 代码执行** | `execute.py` | `{name}-progress.md` | 逐个任务：规范 → 实现 → 标记完成 |
+| **3.5. 统一单元测试** | 手动编写 | 所有任务实现 | 单元测试（正例+反例+边界值），覆盖率 **100%** |
+| **4. 集成测试验证** | `verify.py` | `{name}-progress.md` | 集成测试结果 + 测试通过确认 |
 | **5. 需求归档** | `archive.py` | 用户已批准 | git tag + 归档 |
 
 **两种模式：**
@@ -210,9 +247,9 @@ cp scripts-coding/templates/python_script_template.py scripts/my-script.py
 - `initialize` - 项目初始化（阶段0，一次）
 - `writing-design` - 需求调研
 - `review-design` - 设计审查（先完整读取 design.md，再逐章评审）
-- `task-breakdown` - 任务拆解
-- `test-driven-development` - TDD开发
-- `debugging-and-verification` - 验证调试
+- `task-breakdown` - 任务拆解（每任务约10个功能点）
+- `sdd-unit-development` - SDD 规范驱动开发（替代 TDD）
+- `debugging-and-verification` - 验证调试（含单元测试 + 集成测试）
 
 ### scripts-coding - 脚本编程规范
 
@@ -327,6 +364,25 @@ skill-builder/
 - [OpenSpec](https://github.com/Fission-AI/OpenSpec) — 轻量级 AI 规格文档框架
 
 ## Changelog
+
+### v2.2.0 (2026-05-19)
+
+**TDD → SDD 规范驱动开发重构：**
+- **SDD 替代 TDD**：`test-driven-development` 子技能替换为 `sdd-unit-development`，从"测试驱动开发"改为"规范驱动开发"
+- **新工作流**：阶段3 SDD 逐个任务实现（规范 → 实现 → 标记完成）→ 阶段3.5 统一单元测试 → 阶段4 集成测试验证
+- **任务粒度调整**：每个任务从 10~20 功能点改为 **约 10 个功能点**（更细粒度，更可执行）
+
+**涉及文件：**
+- `vibe-coding/SKILL.md` — 阶段2/3/4重写，新增阶段3.5
+- `task-breakdown/SKILL.md` — 粒度调整为约10功能点
+- `sdd-unit-development/SKILL.md` — **新建** SDD 子技能
+- `test-driven-development/SKILL.md` — **删除** 旧的 TDD 子技能
+- `debugging-and-verification/SKILL.md` — 验证清单首位改为单元测试，SDD 关系表
+- `scripts/execute.py` — TDD → SDD 全量替换
+- `scripts/verify.py` — 新增单元测试模板和验证流程
+- `scripts/plans.py` — 输出文本更新
+- `references/workflow-guide.md` — TDD → SDD 更新
+- `README.md` — 同步更新文档结构
 
 ### v2.1.0 (2026-05-18)
 

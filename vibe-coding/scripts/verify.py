@@ -58,10 +58,13 @@ def start_verification(name: str, changes_dir: Path) -> int:
 | **开始时间** | {datetime.now().strftime("%Y-%m-%d %H:%M")} |
 | **完成时间** | - |
 
-**涉及文档：**
-| 文档 | 操作 | 说明 |
-|------|------|------|
-| - | - | - |
+---
+
+### 单元测试（所有任务实现后统一编写）
+
+| 任务 | 正例数 | 反例数 | 边界值数 | 覆盖率 | 状态 |
+|------|--------|--------|----------|--------|------|
+| - | - | - | - | - | ⏳ |
 
 ---
 
@@ -88,8 +91,9 @@ def start_verification(name: str, changes_dir: Path) -> int:
 
 | 检查项 | 结果 | 说明 |
 |--------|------|------|
+| 单元测试覆盖率 100% | ☐ | |
+| 正例 + 反例 + 边界值覆盖 | ☐ | |
 | 集成测试通过 | ☐ | |
-| 单元测试覆盖率 ≥ 90% | ☐ | |
 | 代码风格检查通过 | ☐ | |
 | Git 提交完成 | ☐ | |
 
@@ -127,15 +131,19 @@ def start_verification(name: str, changes_dir: Path) -> int:
     print()
 
     print("=" * 60)
-    print("系统集成测试要点")
+    print("验证流程")
     print("=" * 60)
     print()
-    print("1. 模块接口测试：验证模块间调用是否正确")
-    print("2. 数据流转测试：验证数据完整流转")
-    print("3. 端到端测试：验证完整业务流程")
-    print("4. 异常处理测试：验证异常情况处理")
+    print("1. 先确认所有任务的单元测试已编写完成（覆盖率100%）")
+    print("2. 运行全部单元测试，确保通过")
+    print("3. 进行系统集成测试：")
+    print("   模块接口测试：验证模块间调用是否正确")
+    print("   数据流转测试：验证数据完整流转")
+    print("   端到端测试：验证完整业务流程")
+    print("   异常处理测试：验证异常情况处理")
     print()
     print("详细说明请参考：./debugging-and-verification/SKILL.md")
+    print("SDD 单元测试参考：./sdd-unit-development/SKILL.md")
 
     return 0
 
