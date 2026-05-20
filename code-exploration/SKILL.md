@@ -1,123 +1,150 @@
+# code-exploration
+
+## 概述
+
+代码深度探索工具，将 **graphify（知识图谱）** 与 **agentgrep（即时搜索）** 结合，
+提供从"点到面"的代码理解工作流。
+
+> **核心理念**：用 agentgrep 发现代码结构 → 用 graphify 图谱发现关联 → 更深入理解代码架构
+
 ---
-name: code-exploration
-description: "代码探索技能 - 使用 graphify 增量探索。当需要理解新代码库结构、搜索代码定义和引用、探索项目架构时使用。在修改代码前必须先理解代码库。"
----
 
-# Code Exploration — 代码探索
-
-## 核心特性
-
-**graphify 是本地增量更新，不消耗 token，可以随时使用。**
-
-- 本地运行，无需 API 调用
-- SHA256 缓存，只处理变更文件
-- 持久化图谱，跨会话查询
-- 自动增量更新
-
-## 使用方式
-
-### 标准方式（推荐）
-
-```powershell
-cd docs/vibe-coding
-graphify update ../../
-```
-
-graphify 会在当前目录下生成 `graphify-out/`，即 `docs/vibe-coding/graphify-out/`。
-
-### 其他命令
+## 依赖
 
 ```bash
-# 仅重新聚类现有图谱
-cd docs/vibe-coding
-graphify cluster-only ../../
+# graphify — 构建知识图谱
+pip install graphifyy && graphify install
 
-# 查询图谱（BFS）
-graphify query "问题"
-
-# 查询图谱（DFS）
-graphify query "问题" --dfs
-
-# 查找两个概念之间的最短路径
-graphify path "A" "B"
-
-# 解释一个节点
-graphify explain "节点"
-
-# 查看交互式 HTML（在浏览器打开）
-start graphify-out/graph.html
+# agentgrep — 即时代码搜索（已预装）
+agentgrep --version
 ```
 
-## 输出结构
+---
 
-```
-docs/vibe-coding/
-└── graphify-out/
-    ├── graph.html          ← 交互式图谱（浏览器打开）
-    ├── GRAPH_REPORT.md    ← 图谱分析报告
-    ├── graph.json         ← 持久化图数据
-    ├── cache/             ← SHA256 缓存
-    └── manifest.json      ← 文件清单
-```
+## 整合工作流
 
-## 查看报告
-
-```powershell
-type docs\vibe-coding\graphify-out\GRAPH_REPORT.md
-
-start docs\vibe-coding\graphify-out\graph.html
-```
-
-## 安装（如果需要）
+### 1️⃣ 即时搜索 + 文件发现（agentgrep）
 
 ```bash
-uv tool install graphifyy && graphify install
-graphify trae-cn install
+# 搜索代码
+agentgrep grep "def handle_" --path <project>
+
+# 发现文件
+agentgrep find auth handler --path <project>
+
+# 查看文件结构
+agentgrep outline <project>/src/main.py
+
+# 关系追踪
+agentgrep trace subject:auth relation:validated --path <project>
 ```
 
-**注意：** PyPI 包名是 `graphifyy`（注意两个 y）
+### 2️⃣ 深度图谱分析（graphify）
 
-## 最佳实践
+```bash
+# 构建/更新知识图谱
+python scripts/explore.py
 
-1. **开始新需求前**：`cd docs/vibe-coding && graphify update ../../`
-2. **代码变更后**：同样命令更新图谱
-3. **需要了解架构时**：读取 `docs/vibe-coding/graphify-out/GRAPH_REPORT.md`
-4. **想找关系时**：使用 `graphify query/explain/path`
+# 强制全量重扫
+python scripts/explore.py --full
 
-### 图谱报告包含什么
-
-- **God Nodes** - 最核心的函数/类，连接最多
-- **Communities** - 模块聚类
-- **Surprising Connections** - 意外发现的关系
-- **Knowledge Gaps** - 连接弱的部分，可能是文档缺失
-
-## 完整工作流示例
-
-```powershell
-# 1. 更新图谱
-cd docs/vibe-coding
-graphify update ../../
-
-# 2. 查看报告
-type graphify-out\GRAPH_REPORT.md
-
-# 3. 打开交互式可视化
-start graphify-out\graph.html
-
-# 4. 查询特定问题
-graphify query "如何处理变更归档？"
+# 查看缓存状态
+python scripts/explore.py --status
 ```
 
-## 与 vibe-coding 的集成
+### 3️⃣ 点 → 面 结合探索
 
-1. 回答架构问题前，读取 `docs/vibe-coding/graphify-out/GRAPH_REPORT.md`
-2. 跨模块关系问题，使用 `graphify query/explain/path`
-3. 代码修改后，在 `docs/vibe-coding/` 下运行 `graphify update ../../`
+```
+发现入口 → agentgrep find main handler
+                ↓
+查看结构 → agentgrep outline handler.py
+                ↓
+图谱关联 → graphify query "handler 相关的模块"
+                ↓
+关系追踪 → agentgrep trace subject:handler relation:calls
+                ↓
+扩散探索 → agentgrep find 找到的新模块...
+```
 
-## 重新完整扫描
+---
 
-```powershell
-cd docs\vibe-coding
-Remove-Item -Recurse -Force graphify-out
-graphify update ../../
+## explore.py 升级命令
+
+| 命令 | 说明 |
+|------|------|
+| `explore.py` | 默认增量扫描（graphify） |
+| `explore.py --full` | 强制全量重扫 |
+| `explore.py --status` | 查看缓存状态 |
+| `explore.py --check` | 检查是否需要更新 |
+| `explore.py --install-hooks` | 安装 Git hooks |
+| `explore.py --quick` | **快速模式**：用 agentgrep 替代 graphify 做轻量扫描 |
+| `explore.py --search <词>` | **即时搜索**：用 agentgrep grep 搜索代码 |
+| `explore.py --find <词>` | **文件发现**：用 agentgrep find 发现文件 |
+| `explore.py --trace <词>` | **关系追踪**：用 agentgrep trace 追踪关系 |
+| `explore.py --outline <file>` | **结构概览**：用 agentgrep outline 查看文件结构 |
+| `explore.py --graph-agent` | **图谱驱动搜索**：从 graphify graph.json 提取文件 → agentgrep 分析关联 |
+
+---
+
+## 实战场景
+
+### 场景：理解一个新项目的认证模块
+
+```bash
+# 1. 快速扫描代码结构
+python scripts/explore.py --quick
+
+# 2. 找到认证相关的文件
+python scripts/explore.py --find auth login
+
+# 3. 查看关键文件结构
+python scripts/explore.py --outline src/auth/handler.py
+
+# 4. 搜索认证流程
+python scripts/explore.py --search "def login"
+
+# 5. 构建完整知识图谱（如果项目较大）
+python scripts/explore.py
+
+# 6. 查询图谱了解模块关系
+graphify query "认证模块的依赖关系"
+
+# 7. 关系追踪：查看认证模块调用了哪些函数
+agentgrep trace subject:auth_handler relation:calls --path .
+```
+
+### 场景：重构旧模块
+
+```bash
+# 1. 图谱查询旧模块影响范围
+graphify query "payment 模块影响的文件"
+
+# 2. agentgrep 搜索所有依赖点
+agentgrep grep "import.*payment" --path src/
+
+# 3. 追踪调用链
+agentgrep trace subject:payment_service relation:rendered --path .
+
+# 4. 查看关键文件结构
+agentgrep outline src/payment/service.py
+```
+
+---
+
+## 原理
+
+```
+agentgrep（广度搜索）
+    ↓
+发现文件/代码结构
+    ↓
+graphify（深度图谱）
+    ↓
+发现关联关系/聚类
+    ↓
+agentgrep trace（关系追踪）
+    ↓
+扩散到更多相关代码
+    ↓
+循环：更深 → 更广 → 更深
 ```
