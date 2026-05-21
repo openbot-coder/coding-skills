@@ -1,13 +1,13 @@
 ---
-name: skill-builder
-description: "从零创建高质量的 Agent Skills。当需要创建新技能、审查现有技能或优化技能配置时使用。支持 SKILL 审核机制（可用性 + 安全性）、审计日志系统、自我进化能力。"
+name: skill-mgr
+description: "从零创建、优化和审计 Agent Skills。当需要创建新技能、审查现有技能、优化技能配置或运行技能审计时使用。支持 SKILL 审核机制（可用性 + 安全性）、审计日志系统、自我进化能力。"
 ---
 
-# Skill Builder — 技能构建器 v3.0
+# Skill Manager
 
 ## 概述
 
-专业技能创建助手，帮助用户从零开始创建高质量的 Agent Skills。v3.0 引入 **5 种设计模式**贯穿技能创建全过程，每种模式对应一类常见技能场景。
+一站式管理你的 Agent Skills——从零创建、优化迭代、安全审计。引入 **5 种设计模式**贯穿技能全生命周期，每种模式对应一类常见技能场景。
 
 **核心功能：**
 - **Inversion 发现** — 先采访用户，再确定设计方向
@@ -213,7 +213,7 @@ python scripts/review.py <skill-dir> --json
 
 ```
 logs/skill-audit/
-├── skill-builder-audit.log        ← 每次 SKILL 创建/审核记录（JSON Lines）
+├── skill-mgr-audit.log        ← 每次 SKILL 创建/审核记录（JSON Lines）
 ├── skill-call-stats.json          ← 每日统计（通过/失败次数）
 └── failure-cases/                 ← 失败案例 Md 文档
     ├── YYYYMMDD-HHMMSS-技能名.md
@@ -336,7 +336,7 @@ python scripts/review.py skills/your-skill-name
 
 ```bash
 # 审核通过后，记录日志
-python scripts/audit_log.py record skills/your-skill-name --result pass --caller "skill-builder"
+python scripts/audit_log.py record skills/your-skill-name --result pass --caller "skill-mgr"
 ```
 
 **审核不通过时** — 查看失败的具体 **🔴 严重项**，修复后重新审核。
@@ -440,7 +440,7 @@ design-pattern: pipeline
 ## 与其他技能的衔接
 
 ```
-skill-builder (v3.0)
+skill-mgr
   │
   ├──→ Inversion: 采访用户 → 确认需求 → 匹配设计模式
   │

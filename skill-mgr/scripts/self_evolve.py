@@ -32,7 +32,7 @@ def get_stats_path(log_dir: str) -> str:
 
 
 def get_audit_log_path(log_dir: str) -> str:
-    return os.path.join(log_dir, "skill-builder-audit.log")
+    return os.path.join(log_dir, "skill-mgr-audit.log")
 
 
 # ============================================================

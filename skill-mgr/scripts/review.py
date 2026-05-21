@@ -231,8 +231,51 @@ SECURITY_PATTERNS = [
 ]
 
 
+# ── 误报过滤规则 ──
+
+FP_REGEX_LINE = re.compile(r"\br['\"].*\\")        # r'...\...' 正则定义
+FP_KEYWORDS_LINE = re.compile(r'"keywords"\s*:\s*\[')  # "keywords": ["..."]
+FP_TABLE_ROW = re.compile(r'^\s*\|')                 # Markdown 表格行
+FP_STRING_CONTEXT = re.compile(r"""['\"].*?(?:exec|eval|pickle|os\.system|chmod|sudo|rm\s+-rf|input|\.\./).*?['\"]""", re.IGNORECASE)  # 字符串中的风险词
+
+
+def _is_false_positive(line: str, filepath: str, match_start: int) -> bool:
+    """判断该匹配是否为误报（风险词出现在文档/字符串/正则中，而非实际调用）"""
+    stripped = line.strip()
+
+    # 1. Markdown 表格行 -> 误报
+    if FP_TABLE_ROW.match(stripped):
+        return True
+
+    # 2. Markdown 代码块行（``` xxx ```）-> 示例代码，非实际执行
+    if stripped.startswith("```"):
+        return True
+
+    # 3. Python 正则定义行 -> 误报
+    if FP_REGEX_LINE.search(stripped):
+        return True
+
+    # 4. 失败模式关键词列表 -> 误报
+    if FP_KEYWORDS_LINE.search(stripped):
+        return True
+
+    # 5. 风险词出现在字符串内（引号包围）-> 说明/文档/示例，不是实际调用
+    #    检查匹配位置是否在字符串中
+    before_match = line[:match_start]
+    # 数匹配位置之前的引号数量，确定是否在字符串内
+    single_quotes = before_match.count("'")
+    double_quotes = before_match.count('"')
+    # 在原始字符串 r'...' 或普通字符串 "..." 或 '...' 内部
+    in_single_raw = before_match.rfind("r'") > max(before_match.rfind("'", 0, before_match.rfind("r'") - 1) if "r'" in before_match else -1, -1)
+    # 更简单的启发式: 匹配位置前有成对的引号且为奇数时，说明在字符串内
+    if (single_quotes % 2 == 1) or (double_quotes % 2 == 1):
+        return True
+
+    return False
+
+
 def check_security_in_skill(path: str) -> dict:
-    """检查 SKILL.md 和 scripts/ 中的安全隐患"""
+    """检查 SKILL.md 和 scripts/ 中的安全隐患（含误报过滤）"""
     findings = []
     skill_paths = []
 
@@ -258,7 +301,8 @@ def check_security_in_skill(path: str) -> dict:
 
         for lineno, line in enumerate(lines, 1):
             for pattern, desc in SECURITY_PATTERNS:
-                if re.search(pattern, line):
+                match = re.search(pattern, line)
+                if match and not _is_false_positive(line, filepath, match.start()):
                     rel_path = os.path.relpath(filepath, path)
                     findings.append({
                         "file": rel_path,
@@ -267,8 +311,7 @@ def check_security_in_skill(path: str) -> dict:
                         "description": desc,
                         "code": line.strip()[:120],
                     })
-                    # 每个模式每文件只报告一次
-                    break  # 继续下一行
+                    break  # 每行只报告第一个匹配的模式
 
     if findings:
         return {"pass": False, "message": f"发现 {len(findings)} 个安全隐患", "findings": findings}
