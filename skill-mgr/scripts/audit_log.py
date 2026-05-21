@@ -25,7 +25,7 @@ def get_log_dir(project_root: str = None) -> str:
     if project_root:
         base = Path(project_root)
     else:
-        # 向上查找 skill-builder 根目录
+        # 向上查找 skill-mgr 根目录
         base = Path(__file__).resolve().parent.parent
     log_dir = base / "logs" / "skill-audit"
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -33,7 +33,7 @@ def get_log_dir(project_root: str = None) -> str:
 
 
 def get_audit_log_path(log_dir: str) -> str:
-    return os.path.join(log_dir, "skill-builder-audit.log")
+    return os.path.join(log_dir, "skill-mgr-audit.log")
 
 
 def get_stats_path(log_dir: str) -> str:
