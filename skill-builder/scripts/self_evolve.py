@@ -16,7 +16,7 @@ Backward-compat wrapper for self-evolve.
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from evolver import EvolutionLoop, EvidenceDistiller, EvolutionAgent
 from evolver.cli import cmd_analyze, cmd_evolve, cmd_report
@@ -25,7 +25,7 @@ from evolver.cli import cmd_analyze, cmd_evolve, cmd_report
 def main():
     if len(sys.argv) < 2:
         print("Usage: python self_evolve.py <command>")
-        print("Commands: analyze, suggest, evolve, report")
+        print("Commands: analyze, suggest, evolve, report, stats")
         return 1
 
     cmd = sys.argv[1]
@@ -49,8 +49,8 @@ def main():
         print(f"\n生成了 {len(proposals)} 个修改方案:")
         for manifest, instructions in proposals:
             print(f"\n📝 [{manifest.edit_id}] {manifest.change_summary}")
-            print(f"   组件: {manifest.component}")
-            print(f"   文件: {manifest.file_path}")
+            print(f"   组件：{manifest.component}")
+            print(f"   文件：{manifest.file_path}")
         return 0
 
     elif cmd == "evolve":
@@ -64,6 +64,11 @@ def main():
         import argparse
         return _cmd(argparse.Namespace())
 
+    elif cmd == "stats":
+        from evolver.cli import cmd_stats as _cmd
+        import argparse
+        return _cmd(argparse.Namespace())
+
     elif cmd == "update-rules":
         # update-rules 现在通过 manifest + verifier 实现
         print("update-rules 已废弃，请使用 'python -m evolver.cli evolve' 代替")
@@ -74,7 +79,7 @@ def main():
         return 0
 
     else:
-        print(f"未知命令: {cmd}")
+        print(f"未知命令：{cmd}")
         return 1
 
 
