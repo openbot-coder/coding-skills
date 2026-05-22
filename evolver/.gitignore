@@ -1,0 +1,7 @@
+# 运行时生成的文件，不应提交到 git
+evidence/
+manifests/
+traces/
+history/
+__pycache__/
+*.pyc
