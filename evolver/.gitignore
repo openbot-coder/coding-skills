@@ -1,0 +1,10 @@
+*.yaml
+*.json
+!latest.json
+history/
+evidence/
+manifests/
+traces/
+.evolver_edits/
+*.pyc
+__pycache__/
