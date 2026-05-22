@@ -16,7 +16,7 @@ Backward-compat wrapper for self-evolve.
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
 from evolver import EvolutionLoop, EvidenceDistiller, EvolutionAgent
 from evolver.cli import cmd_analyze, cmd_evolve, cmd_report
@@ -61,6 +61,11 @@ def main():
 
     elif cmd == "report":
         from evolver.cli import cmd_report as _cmd
+        import argparse
+        return _cmd(argparse.Namespace())
+
+    elif cmd == "stats":
+        from evolver.cli import cmd_stats as _cmd
         import argparse
         return _cmd(argparse.Namespace())
 
