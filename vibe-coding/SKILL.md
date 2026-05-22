@@ -17,6 +17,7 @@ description: "轻量级 AI 编程技能，管理完整的开发全生命周期�
 > - [Git规则](./references/GIT-RULES.md)
 > - [分支策略](./references/branching-strategy.md)
 > - [工作流指南](./references/workflow-guide.md)
+> - [自我升级指南](./evolution/EVOLUTION-GUIDE.md) ← 基于 AHE 论文实现
 
 ## 🔴 硬性约束（绝对禁止违反）
 
@@ -205,6 +206,12 @@ vibe-coding/                           ← 技能目录
 ├── review-design/
 ├── sdd-unit-development/
 ├── debugging-and-verification/
+├── evolution/                         ← 自我升级模块
+│   ├── evolve.py                     ← 进化主脚本
+│   ├── collect-evidence.py           ← 证据收集
+│   ├── analyze-trajectories.py       ← 轨迹分析
+│   ├── change-manifest-template.md   ← 变更清单模板
+│   └── EVOLUTION-GUIDE.md           ← 进化指南
 ├── references/                        ← 参考文档
 └── scripts/
 
@@ -222,3 +229,27 @@ vibe-coding/                           ← 技能目录
             │   └── {name}-progress.md
             └── archive/              ← 已归档变更
 ```
+
+## 🔄 自我升级（基于 AHE 论文）
+
+vibe-coding 通过三个可观测性支柱实现自我升级，详见 [EVOLUTION-GUIDE.md](./evolution/EVOLUTION-GUIDE.md)。
+
+### 进化循环
+
+```
+收集证据 → 分析轨迹 → 变更决策 → 验证结果
+```
+
+### 触发条件
+
+| 类型 | 触发条件 |
+|------|----------|
+| **手动触发** | `python evolution/evolve.py --project-dir . --action init` |
+| **自动触发** | 连续 3 次相同类型错误时自动触发 |
+
+### 证据收集时机
+
+- ✅ 每次任务开始/完成时
+- ✅ 每次阶段切换时
+- ✅ 每次遇到问题时
+- ✅ 每次规则修改时
